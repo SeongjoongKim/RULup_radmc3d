@@ -19,6 +19,7 @@ cp dust_temperature.dat "Tdust_"$name".dat"      # Copy T file
 #--------------------------------------------------------------------------------------------
 # Setup the input files for imaging
 python make_gas_temperature.py -file $name      # Separate Tdust & Tgas
+python make_turb_file.py -file $name
 python problem_setup.py -calmode "I" -wind "F"  # Set large grain only for imaging
 #'''
 #--------------------------------------------------------------------------------------------

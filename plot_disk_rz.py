@@ -18,7 +18,7 @@ rs  = 6.96e10        # Solar radius            [cm]
 #------------------------------------------------------------------------------------------------------------
 fnameread      = 'amr_grid.inp'
 nr, ntheta, nphi, grids = read_grid_inp(fnameread)
-ri = grids[0:nr+1]; thetai = grids[nr+1:nr+ntheta+2]; phii = grids[nr+ntheta+2:-1]
+ri = grids[0:nr+1]; thetai = grids[nr+1:nr+ntheta+2]; phii = grids[nr+ntheta+2:]
 rc       = 0.5 * ( ri[0:nr] + ri[1:nr+1] )
 thetac   = 0.5 * ( thetai[0:ntheta] + thetai[1:ntheta+1] )
 phic     = 0.5 * ( phii[0:nphi] + phii[1:nphi+1] )
