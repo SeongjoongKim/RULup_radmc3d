@@ -40,4 +40,4 @@ with open('microturbulence.inp','w+') as f:
     data = vturb.ravel(order='F')        # Create a 1-D view, fortran-style indexing
     data.tofile(f, sep='\n', format="%13.6e")
     f.write('\n')
-return
+
