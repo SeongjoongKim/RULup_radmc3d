@@ -99,8 +99,8 @@ def fractional_abundance(rs,zs,species):
         fa = 1e-4/67./6.*np.exp(-(rs/50./au))
         return fa
     if species == 'CN':
-        fita = 0.25; fitb = 100.; fitc = 1.0
-        #fita = 0.35; fitb = 290.; fitc = 1.4
+        fita = 0.35; fitb = 290.; fitc = 1.4
+        #fita = 0.25; fitb = 100.; fitc = 1.0
         zcn = rs * fita* (1+ (rs/fitb/au )**fitc ) # (0.1 + 0.07*(rr/9./au)**0.6)
         iup = np.where(zs>=zcn)
         idown = np.where(zs<zcn)
