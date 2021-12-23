@@ -19,9 +19,9 @@ NA = 6.02e23
 mH = 1.0/NA
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--calmode', default='I', type=str, help='Calculation mode: T (temperature) or I (image)')
-parser.add_argument('--wind', default='F', type=str, help='If you want to include wind model, set this argument T. default is F (no wind).')
-parser.add_argument('--settle', default=0.1, type=float, help='dust settling degree (Hd/Hg). Please set between 0.1~1.0')
+parser.add_argument('-calmode', default='I', type=str, help='Calculation mode: T (temperature) or I (image)')
+parser.add_argument('-wind', default='F', type=str, help='If you want to include wind model, set this argument T. default is F (no wind).')
+parser.add_argument('-settle', default=0.1, type=float, help='dust settling degree (Hd/Hg). Please set between 0.1~1.0')
 args = parser.parse_args()
 print(args)
 
