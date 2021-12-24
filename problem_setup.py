@@ -39,7 +39,7 @@ mstar, rstar, tstar = [ 0.63*ms, 2.42*rsun, 4073. ] #Stellar parameters. The lis
 
 # Grid parameters. Please see lines 49-56 for making the grid -------------------------------------
 nr, ntheta, nphi  = [100, 100, 1]       # Radial grid（int）, Elevation grid (z-direction, int), Azimuthal grid 1 (y-direction, int)
-rin, rout, thetaup = [0.1*au, 300.0*au, np.pi*0.5-0.7] # inner radius & outer radius(cm), Elevation limit。0<= theta <~ 50 deg
+rin, rout, thetaup = [0.1, 300.0, np.pi*0.5-0.7] # inner radius & outer radius(cm), Elevation limit。0<= theta <~ 50 deg
 
 # Temperature profile parameter. Please see lines 59-64 for making T profile at midplane. -------------------------------------
 r0 = 10.0; pltt = -0.5 # The initial temperature profile at the midplane. T(r) = T0 (r/r0)^-pltt. You can modify the profile at lines 56-58.
@@ -76,6 +76,7 @@ lam, nlam = lambda_create(*lam,n12,n23,n34)
 lstar    = star_create(mstar,rstar,tstar,lam)
 
 # Make the grid ----------------------------------
+rin *= au; rout *= au
 rc, thetac, phic = grid_set(nr,ntheta,nphi,rin,rout,thetaup)
 qq       = np.meshgrid(rc,thetac,phic,indexing='ij')
 rr       = qq[0]    # cm
