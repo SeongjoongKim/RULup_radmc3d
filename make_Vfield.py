@@ -88,12 +88,12 @@ cv   = 0.1
 
 # Disk parameters   ----------------------------------
 #  Gas disk ----------------------------------
-sigmag0  = 1.e3 #sigmad0*1e2*(100./rd0)**plsig
+sigmag0  = 1.5e3 #sigmad0*1e2*(100./rd0)**plsig
 rg0          = 1.
 rge0        = 50.
 plsigg      =  -1.0
 #  Dust disk ----------------------------------
-sigmad0 = 1.e2      # dust surface density at rd0 au     [g/cm2]
+sigmad0 = 1.5e2      # dust surface density at rd0 au     [g/cm2]
 plsig    = -1.0            # Powerlaw of the surface density
 rd0     = 1              # Sigma_dust,0 at 5 au
 rde0   = 50.           # exponential tail of dust profile
@@ -106,7 +106,7 @@ Cw = 1.0e-4
 P_mid = sigmag/np.sqrt(2.e0*np.pi)/hp[:,None,None] *cs[:,None,None]**2   # Equation (18) of Bai 2016, ApJ, 821, 80
 B_mid = np.sqrt((8*np.pi*P_mid)/beta_0 )             # Equation (18) of Bai 2016, ApJ, 821, 80
 z0 = 4.0*hp  #X*rs**(1.5+0.5*pltt)  # wind base
-alpha_B = -2.0
+alpha_B = -1.0
 rhog = np.zeros_like(rr)   # [g/cm3] in Spherical (r,theta)
 Bp = np.zeros_like(rr)
 vz = np.zeros_like(rr)

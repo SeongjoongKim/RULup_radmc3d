@@ -77,14 +77,15 @@ rde0   = 50.           # exponential tail of dust profile
 # Make the density model ----------------------------------
 sigmag   = sigmag0*(rs/rg0/au)**plsigg #  power-law function
 beta_0 = 1.e4
-Cw = 1.0e-3
-alpha_B = -2.0
+Cw = 1.0e-4
+alpha_B = -1.0
 P_mid = sigmag/np.sqrt(2.e0*np.pi)/hp *cs**2   # Equation (18) of Bai 2016, ApJ, 821, 80
 B_mid = np.sqrt((8*np.pi*P_mid)/beta_0 )             # Equation (18) of Bai 2016, ApJ, 821, 80
 z0 = 4.0*hp  #X*rs**(1.5+0.5*pltt)  # wind base
 rhog = np.zeros_like(rs)   # [g/cm3] in Spherical (r,theta)
 Bp = np.zeros_like(rs)
 vz = np.zeros_like(rs)
+a=0.1; b=1.0             # Set the disk inner edge (0.1 au) and tapering radius (1 au)
 for i in range(0,nr):
     for j in range(0,ntheta):
         if (zs[i,j,0]<=z0[i,j,0]):
@@ -93,17 +94,25 @@ for i in range(0,nr):
             vz[i,j,0] = Cw*sigmag[i,j,0]*omk[i,j,0]/rhog[i,j,0]   # Suzuki et al. 2010, ApJ, 718, 1289
         else:
             R0 = z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
-            sigmag_R0 = sigmag0*(R0/rg0/au)**plsigg
-            t_R0 = t0 * (R0/r0)**pltt
-            cs_R0 = np.sqrt(kb*t_R0/(2.3*mp))
-            omk_R0 = np.sqrt(GG*mstar/R0**3)
-            hp_R0 = cs_R0 / omk_R0
-            rhog_R0 = sigmag_R0 / np.sqrt(2.e0*np.pi)/hp_R0
-            P_mid_R0 = rhog_R0*cs_R0**2
-            B_mid_R0 = np.sqrt((8*np.pi*P_mid_R0)/beta_0)
-            rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
-            Bp[i,j,0] = B_mid_R0* (rs[i,j,0]/R0)**alpha_B *np.cos(45.*np.pi/180.)  # Bai 2016, ApJ, 818,152
-            vz[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0] *np.cos(45.*np.pi/180.)
+            if R0 < 0.1*au:
+                rhog[i,j,0] = 0.
+                Bp[i,j,0] = 0.
+                vz[i,j,0] = 0.
+            else:
+                if R0<1*au:
+                    sigmag_R0 = sigmag0*(1.0-(R0/a/au))*(1.0-(b/a))**(-1)
+                else:
+                    sigmag_R0 = sigmag0*(R0/rg0/au)**plsigg
+                t_R0 = t0 * (R0/r0)**pltt
+                cs_R0 = np.sqrt(kb*t_R0/(2.3*mp))
+                omk_R0 = np.sqrt(GG*mstar/R0**3)
+                hp_R0 = cs_R0 / omk_R0
+                rhog_R0 = sigmag_R0 / np.sqrt(2.e0*np.pi)/hp_R0
+                P_mid_R0 = rhog_R0*cs_R0**2
+                B_mid_R0 = np.sqrt((8*np.pi*P_mid_R0)/beta_0)
+                rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
+                Bp[i,j,0] = B_mid_R0* (rs[i,j,0]/R0)**alpha_B #*np.cos(45.*np.pi/180.)  # Bai 2016, ApJ, 818,152
+                vz[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0] #*np.cos(45.*np.pi/180.)
 
 
 #Bp[np.isnan(Bp)] = 0
@@ -225,7 +234,7 @@ plt.legend(prop={'size':15},loc=0)
 plt.tick_params(which='both',length=6,width=1.5)
 cbar = plt.colorbar() #ticks=[1e4,1e5,1e6,1e7])
 cbar.set_label(r'$km\ s^{-1}$', size=10)
-plt.savefig('Vz_spherical_rz.pdf',dpi=100, bbox_inches='tight')
+plt.savefig('Vz_spherical_B-1_rz.pdf',dpi=100, bbox_inches='tight')
 plt.clf()
 
 plt.figure(figsize=(10,6))
@@ -240,7 +249,7 @@ plt.ylabel(r'log$_{10}$($\theta_{sph}$)',fontsize=15)
 plt.legend(prop={'size':15},loc=0)
 plt.tick_params(which='both',length=6,width=1.5)
 plt.colorbar() #ticks=[1e4,1e5,1e6,1e7])
-plt.savefig('Bz_spherical_rz.pdf',dpi=100, bbox_inches='tight')
+plt.savefig('Bz_spherical_B-1_rz.pdf',dpi=100, bbox_inches='tight')
 plt.clf()
 
 """
