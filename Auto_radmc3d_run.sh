@@ -106,19 +106,20 @@ python plot_radial.py -file $name"_bmaj5"
 
 #--------------------------------------------------------------------------------------------
 # Ploting spectrum at each pixel
-python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj51" -double "T"
-python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj5" -double "T"
-python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj51" -double "F"
-python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj5" -double "F"
-python plot_spectra.py -mole "C18O_2-1" -bmaj "bmaj51" -double "F"
-python plot_spectra.py -mole "C18O_2-1" -bmaj "bmaj5" -double "F"
+tname=fiducial
+python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj51" -double "T" -tname $tname
+python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj5" -double "T" -tname $tname
+python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj51" -double "F" -tname $tname
+python plot_spectra.py -mole "CN_3-2" -bmaj "bmaj5" -double "F" -tname $tname
+python plot_spectra.py -mole "C18O_2-1" -bmaj "bmaj51" -double "F" -tname $tname
+python plot_spectra.py -mole "C18O_2-1" -bmaj "bmaj5" -double "F" -tname $tname
 
-python plot_spectra_average.py -mole "C18O_2-1" -bmaj "bmaj51" -double "F"
-python plot_spectra_average.py -mole "C18O_2-1" -bmaj "bmaj5" -double "F"
-python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj51" -double "F"
-python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj5" -double "F"
-python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj51" -double "T"
-python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj5" -double "T"
+python plot_spectra_average.py -mole "C18O_2-1" -bmaj "bmaj51" -double "F" -tname $tname
+python plot_spectra_average.py -mole "C18O_2-1" -bmaj "bmaj5" -double "F" -tname $tname
+python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj51" -double "F" -tname $tname
+python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj5" -double "F" -tname $tname
+python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj51" -double "T" -tname $tname
+python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj5" -double "T" -tname $tname
 
 #--------------------------------------------------------------------------------------------
 # Ploting Moment 1 and 2 maps of the models

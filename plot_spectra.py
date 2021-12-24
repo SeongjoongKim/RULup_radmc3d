@@ -85,6 +85,7 @@ def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
 parser = argparse.ArgumentParser()
 parser.add_argument('-mole', default='None', type=str, help='The molecular line name. Default is None.')
 parser.add_argument('-bmaj', default='bmaj5', type=str, help='The beam size. Default is bmaj5.')
+parser.add_argument('-tname', default='None', type=str, help='Test name. Default is None.')
 parser.add_argument('-double', default='F', type=str, help='The fitting of line shape. "F" is a single Gaussian and "T" is double peak shape. Default is "F".')
 #parser.add_argument('-rmin', default=0.0, type=float, help='The inner radius in arcsec unit. Default is 0.0')
 #parser.add_argument('-rmax', default=1.0, type=float, help='The outer radius in arcsec unit. Default is 1.0')
@@ -95,6 +96,7 @@ args = parser.parse_args()
 mole = args.mole  #'C18O_2-1'
 bmaj = args.bmaj  #'bmaj5'
 double = args.double
+tname = args.tname
 inc = 25.0
 r0 = 0.05;  r1 = 0.85; dr =0.1
 r_min = np.arange(r0,r1,dr); r_max = r_min + dr
@@ -113,13 +115,17 @@ Summary_obs = np.zeros((len(r_min),n_gauss))
 # =======================================================================================
 # Set No wind model fits file
 fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial/'
-fitsname = 'RULup_'+mole+'_fiducial_'+bmaj+'.fits'  #
+fitsname = 'RULup_'+mole+'_fiducial_'+tname+'_'+bmaj+'.fits'
+if not os.path.exists(fdir+fitsname):
+    fitsname = 'RULup_'+mole+'_fiducial_'+bmaj+'.fits'
 cube = imagecube(fdir+fitsname)
 #for ii in range(cube.header['NAXIS3']): cube.data[ii,:,:] = cube.data[ii,:,:].T
 
 # Set Wind model fits file
 fdir2 = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
-windname = 'RULup_'+mole+'_fiducial_wind_CN0.35_Cw1e-4_'+bmaj+'.fits'#
+windname = 'RULup_'+mole+'_fiducial_wind_'+tname+'_'+bmaj+'.fits'#
+if not os.path.exists(fdir2+fitsname):
+    windname = 'RULup_'+mole+'_fiducial_wind_'+bmaj+'.fits'#
 cube_wind = imagecube(fdir2+windname)
 #for ii in range(cube_wind.header['NAXIS3']): cube_wind.data[ii,:,:] = cube_wind.data[ii,:,:].T
 
@@ -131,15 +137,20 @@ nv_obs = cube_obs.header['NAXIS3']
 vel_obs = cube_obs.velax*1e-3 - 5.0 #0.52 +np.arange(nv_obs)*0.084 - 5.0
 
 # Output directory of Gaussian fitting parameter summary
-outdir = '../spec_figure/CN0.35_Cw1e-4/'
+outdir = '../spec_figure/'+tname+'/'
+if not os.path.exists(outdir):
+    os.mkdir(outdir)
+    print("Directory " , outdir ,  " Created ")
+else:
+    print("Directory " , outdir ,  " already exists")
 
 # =======================================================================================
 # Making fittings of spectra and plotting
 # =======================================================================================
 for k in range(len(r_min)):
-    dirName = '../spec_figure/CN0.35_Cw1e-4/'+mole+'_r{:4.2f}-{:4.2f}_PA{:03d}-{:03d}_'.format(r_min[k],r_max[k],PA_min,PA_max)+bmaj+'/'  # Output directory set
+    dirName = outdir+mole+'_r{:4.2f}-{:4.2f}_PA{:03d}-{:03d}_'.format(r_min[k],r_max[k],PA_min,PA_max)+bmaj+'/'  # Output directory set
     if double == 'T':
-        dirName = '../spec_figure/CN0.35_Cw1e-4/'+mole+'_r{:4.2f}-{:4.2f}_PA{:03d}-{:03d}_'.format(r_min[k],r_max[k],PA_min,PA_max)+bmaj+'_double/'
+        dirName = outdir+mole+'_r{:4.2f}-{:4.2f}_PA{:03d}-{:03d}_'.format(r_min[k],r_max[k],PA_min,PA_max)+bmaj+'_double/'
     if not os.path.exists(dirName):
         os.mkdir(dirName)
         print("Directory " , dirName ,  " Created ")
