@@ -154,7 +154,7 @@ elif args.wind == 'T':
                     rhog_R0 = sigmag_R0 / np.sqrt(2.e0*np.pi)/hp_R0
                     P_mid_R0 = rhog_R0*cs_R0**2
                     B_mid_R0 = np.sqrt((8*np.pi*P_mid_R0)/beta_0)
-                    rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
+                    rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
                     Bp[i,j,0] = B_mid_R0* (rs[i,j,0]/R0)**alpha_B #*np.cos(45.*np.pi/180.)  # Bai 2016, ApJ, 818,152
                     vz[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0] #*np.cos(45.*np.pi/180.)
     # Dust density
