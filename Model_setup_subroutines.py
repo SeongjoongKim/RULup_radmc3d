@@ -532,3 +532,35 @@ def read_vel_input(file):
             vtheta[iy]   = vel.split()[1]
             vphi[iy]   = vel.split()[2]
     return vr, vtheta, vphi
+
+
+def calculate_R0(rs,zs,t0,rt0,plt,mstar):
+    eps=1e-3
+    C = zs-rs
+    r2 = rs;  r1 = 0.1*au;  r_mid = 0.5*(r1+r2)
+    z2 = r2+C;  z1 = r1+C;  z_mid = r_mid+C
+    t2 = t0*(r2/rt0)**plt;  t1 = t0*(r1/rt0)**plt;  t_mid = t0*(r_mid/rt0)**plt
+    cs2 = np.sqrt(kb*t2/(2.3*mp));  cs1 = np.sqrt(kb*t1/(2.3*mp));  cs_mid = np.sqrt(kb*t_mid/(2.3*mp))
+    omk2 = np.sqrt(GG*mstar/r2**3);  omk1 = np.sqrt(GG*mstar/r1**3);  omk_mid = np.sqrt(GG*mstar/r_mid**3)
+    zb2 = 4.0*cs2/omk2;  zb1 = 4.0*cs1/omk1;  zb_mid = 4.0*cs_mid/omk_mid
+    target2 = (zb2 - z2)/au;  target1 = (zb1 - z1)/au;  target_mid = (zb_mid - z_mid)/au
+    if (target1*target2) > 0:
+        R0 = 0.1* au
+    else:
+        while (0<1):
+            if ( (target1*target_mid) <= 0 and (target2*target_mid) >= 0):
+                r1=r1; r2=r_mid
+            else:
+                r1=r_mid; r2=r2
+            r_mid = 0.5*(r1+r2)
+            z2 = r2+C;  z1 = r1+C;  z_mid = r_mid+C
+            if abs( (z2-z1)/(z2+z1) ) < eps :
+                R0 = r_mid
+                break
+            t2 = t0*(r2/rt0)**plt;  t1 = t0*(r1/rt0)**plt;  t_mid = t0*(r_mid/rt0)**plt
+            cs2 = np.sqrt(kb*t2/(2.3*mp));  cs1 = np.sqrt(kb*t1/(2.3*mp));  cs_mid = np.sqrt(kb*t_mid/(2.3*mp))
+            omk2 = np.sqrt(GG*mstar/r2**3);  omk1 = np.sqrt(GG*mstar/r1**3);  omk_mid = np.sqrt(GG*mstar/r_mid**3)
+            zb2 = 4.0*cs2/omk2;  zb1 = 4.0*cs1/omk1;  zb_mid = 4.0*cs_mid/omk_mid
+            target2 = (zb2 - z2)/au;  target1 = (zb1 - z1)/au;  target_mid = (zb_mid - z_mid)/au
+    return R0
+

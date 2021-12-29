@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from Model_setup_subroutines import *
 
 # Some natural constants  ----------------------------------
 au  = 1.49598e13     # Astronomical Unit       [cm]
@@ -74,18 +75,31 @@ rd0     = 1              # Sigma_dust,0 at 5 au
 rde0   = 50.           # exponential tail of dust profile
 #plh      = 1.25               # Powerlaw of flaring
 
+# Set the inner edge conditions
+r_inedge = 0.1*au; t_inedge = t0*(r_inedge/r0)**pltt
+zb_inedge = 4.0*np.sqrt(kb*t_inedge/(2.3*mp))/np.sqrt(GG*mstar/r_inedge**3) - 0.1*au
+
 # Make the density model ----------------------------------
-sigmag   = sigmag0*(rs/rg0/au)**plsigg #  power-law function
-beta_0 = 1.e4
-Cw = 1.0e-5
-alpha_B = -2.0
+a=0.1; b=1.0             # Set the disk inner edge (0.1 au) and tapering radius (1 au)
+sigmag = np.zeros_like(rs)
+sigmad = np.zeros_like(rs)
+for i in range(nr):
+    for j in range(ntheta):
+        if rs[i,j,0]>=1*au:
+            sigmag[i,j,0]   = sigmag0*(rs[i,j,0]/rg0/au)**plsigg #  power-law function
+            sigmad[i,j,0]   = sigmad0*(rs[i,j,0]/rd0/au)**plsig*np.exp(-(rs[i,j,0]/rde0/au)**2.0) #  power-law function
+        else:
+            sigmag[i,j,0]   = sigmag0*(1.0-(rs[i,j,0]/a/au))*(1.0-(b/a))**(-1) #  power-law function
+            sigmad[i,j,0]   = sigmad0*(1.0-(rs[i,j,0]/a/au))*(1.0-(b/a))**(-1) #  power-law function
+sigmag[np.where(rs<0.1*au)] = 0.
+sigmad[np.where(rs<0.1*au)] = 0.
+beta_0 = 1.e4;  Cw = 1.0e-5;  alpha_B = -2.0
 P_mid = sigmag/np.sqrt(2.e0*np.pi)/hp *cs**2   # Equation (18) of Bai 2016, ApJ, 821, 80
 B_mid = np.sqrt((8*np.pi*P_mid)/beta_0 )             # Equation (18) of Bai 2016, ApJ, 821, 80
 z0 = 4.0*hp  #X*rs**(1.5+0.5*pltt)  # wind base
 rhog = np.zeros_like(rs)   # [g/cm3] in Spherical (r,theta)
 Bp = np.zeros_like(rs)
 vz = np.zeros_like(rs)
-a=0.1; b=1.0             # Set the disk inner edge (0.1 au) and tapering radius (1 au)
 for i in range(0,nr):
     for j in range(0,ntheta):
         if (zs[i,j,0]<=z0[i,j,0]):
@@ -93,12 +107,12 @@ for i in range(0,nr):
             Bp[i,j,0] = B_mid[i,j,0]
             vz[i,j,0] = Cw*sigmag[i,j,0]*omk[i,j,0]/rhog[i,j,0]   # Suzuki et al. 2010, ApJ, 718, 1289
         else:
-            R0 = z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
-            if R0 < 0.1*au:
+            if (zs[i,j,0]-rs[i,j,0] > zb_inedge):
                 rhog[i,j,0] = 0.
                 Bp[i,j,0] = 0.
                 vz[i,j,0] = 0.
             else:
+                R0 = calculate_R0(rs[i,j,0],zs[i,j,0],t0,r0,pltt,mstar)   #z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
                 if R0<1*au:
                     sigmag_R0 = sigmag0*(1.0-(R0/a/au))*(1.0-(b/a))**(-1)
                 else:
@@ -110,9 +124,10 @@ for i in range(0,nr):
                 rhog_R0 = sigmag_R0 / np.sqrt(2.e0*np.pi)/hp_R0
                 P_mid_R0 = rhog_R0*cs_R0**2
                 B_mid_R0 = np.sqrt((8*np.pi*P_mid_R0)/beta_0)
-                rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
+                rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/R0/omk_R0)**(-0.6) * np.sqrt((rs[i,j,0]-R0)/R0 ) )  #zs[i,j,0]-(4*hp_R0)
                 Bp[i,j,0] = B_mid_R0* (rs[i,j,0]/R0)**alpha_B #*np.cos(45.*np.pi/180.)  # Bai 2016, ApJ, 818,152
                 vz[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0] #*np.cos(45.*np.pi/180.)
+                #print(i,j,R0/au, rhog[i,j,0])
 
 
 #Bp[np.isnan(Bp)] = 0

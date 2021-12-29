@@ -99,6 +99,10 @@ settfact = args.settle               # Settling factor of the big grains
 hp_biggr = hp*settfact
 hpr_biggr= hpr*settfact
 
+# Set the inner edge conditions
+r_inedge = 0.1*au; t_inedge = t0*(r_inedge/r0)**pltt
+zb_inedge = 4.0*np.sqrt(kb*t_inedge/(2.3*mp))/np.sqrt(GG*mstar/r_inedge**3) - 0.1*au
+
 # Make the density model ----------------------------------
 sigmag = np.zeros_like(rs)
 sigmad = np.zeros_like(rs)
@@ -137,12 +141,12 @@ elif args.wind == 'T':
                 Bp[i,j,0] = B_mid[i,j,0]
                 vz[i,j,0] = Cw*sigmag[i,j,0]*omk[i,j,0]/rhog[i,j,0]   # Suzuki et al. 2010, ApJ, 718, 1289
             else:
-                R0 = z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
-                if R0 < 0.1*au:
+                if (zs[i,j,0]-rs[i,j,0] > zb_inedge):
                     rhog[i,j,0] = 0.
                     Bp[i,j,0] = 0.
                     vz[i,j,0] = 0.
                 else:
+                    R0 = calculate_R0(rs[i,j,0],zs[i,j,0],t0,r0,pltt,mstar)   #z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
                     if R0<1*au:
                         sigmag_R0 = sigmag0*(1.0-(R0/a/au))*(1.0-(b/a))**(-1)
                     else:
@@ -211,4 +215,3 @@ if args.calmode == 'T':
 elif args.calmode == 'I':
     nphot    = 1000000   # < ---------------------------- nphot
 write_radmc_input(nphot,2,LTE=True)
-
