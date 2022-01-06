@@ -136,7 +136,11 @@ tname=fiducial_wind
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj51" -tname $tname
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj5" -tname $tname
 
-#'''
+mole=12CO_2-1
+tname=fiducial
+python plot_chmap.py -mole $mole -bmaj "bmaj5" -tname $tname
+
+'''
 mole="CN_3-2"
 python plot_spectra_LWtest.py -mole $mole -bmaj "bmaj51" -double "T" -rmin 0.05 -rmax 0.15 -PAmin 45 -PAmax 135
 python plot_spectra_LWtest.py -mole $mole -bmaj "bmaj5" -double "T" -rmin 0.05 -rmax 0.15 -PAmin 45 -PAmax 135
@@ -173,3 +177,4 @@ python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj51" -double "F" -rm
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj5" -double "F" -rmin 0.65 -rmax 0.75 -PAmin 45 -PAmax 135
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj51" -double "F" -rmin 0.75 -rmax 0.85 -PAmin 45 -PAmax 135
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj5" -double "F" -rmin 0.75 -rmax 0.85 -PAmin 45 -PAmax 135
+'''

@@ -213,5 +213,5 @@ write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
 if args.calmode == 'T':
     nphot    = 3000000   # for fiducial_wind, 1e6 due to the limit of cal. time
 elif args.calmode == 'I':
-    nphot    = 1000000   # < ---------------------------- nphot
+    nphot    = 100000   # < ---------------------------- nphot
 write_radmc_input(nphot,2,LTE=True)
