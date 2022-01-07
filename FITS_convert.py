@@ -105,7 +105,7 @@ for j in range(len(fnameread)):
     hdr['CUNIT2'] = 'deg'
     hdr['CTYPE3'] = 'VELO-LSR'
     hdr['CDELT3'] = chanstep#*1e3
-    #hdr['CUNIT3'] = 'km/s'
+    hdr['CUNIT3'] = 'km/s'
     hdr['CRPIX3'] = 1.
     hdr['CRVAL3'] = velo_steps[0]#*1e3
     hdr['CTYPE4'] = 'STOKES'
