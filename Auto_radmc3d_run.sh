@@ -136,9 +136,11 @@ tname=fiducial_wind
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj51" -tname $tname
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj5" -tname $tname
 
-mole=12CO_2-1
-tname=fiducial
-python plot_chmap.py -mole $mole -bmaj "bmaj5" -tname $tname
+#--------------------------------------------------------------------------------------------
+# Ploting Channel maps
+mole=C18O_3-2
+tname=fiducial_wind
+python plot_chmap.py -mole $mole -bmaj "bmaj51" -tname $tname
 
 '''
 mole="CN_3-2"
