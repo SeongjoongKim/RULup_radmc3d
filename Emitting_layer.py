@@ -279,7 +279,7 @@ for i in range(len(rc)):
 #==============================================================
 distance = 160.0
 inc = 25.0; DPA = 121.0
-mole = 'CN_3-2'; bmaj = 'bmaj5'
+mole = 'C18O_3-2'; bmaj = 'bmaj5'
 tname = 'fiducial_wind'
 fdir2 = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
 windname = 'RULup_'+mole+'_fiducial_wind_'+tname+'_'+bmaj+'.fits'
@@ -319,7 +319,7 @@ plt.tick_params(which='both',length=6,width=1.5)
 cbar = plt.colorbar(im, ticks=[20,40,60,80,100,120,140,200])
 cbar.ax.set_yticklabels([20,40,60,80,100,120,140,200])
 #plt.savefig('Tdust_rz_small.pdf',dpi=100, bbox_inches='tight')
-plt.savefig('Tgas_rz_cyl_interp.pdf',dpi=100,bbox_inches='tight')
+plt.savefig('Tgas_rz_cyl_interp_'+mole+'_layer.pdf',dpi=100,bbox_inches='tight')
 #==============================================================
 # Radial T profile at the emitting surface
 #==============================================================
