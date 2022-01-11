@@ -8,6 +8,7 @@ from astropy import units as u
 from matplotlib.patches import Ellipse, Rectangle, Circle
 from astropy.wcs import WCS
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingArea, TextArea, VPacker)#from Model_setup_subroutines import *
+from gofish import imagecube
 import argparse
 
 # =======================================================================================
@@ -69,9 +70,11 @@ mole = args.mole  #'CN_3-2'
 b_maj = args.bmaj  #'bmaj51'
 tname = args.tname  #'fiducial'
 
+# =======================================================================================
+# Disk parameters & radii setup
+# =======================================================================================
 inc = 25.0
-r_min = 0.35;  r_max = 0.45
-DPA = 121.0; PA_min = 80; PA_max = 100
+DPA = 121.0; PA_min = -180.0; PA_max = 180.0
 dxc = 0.00; dyc = 0.00
 z0 = 0.00;psi = 1.0; z1 = 0.0; phi = 1.0
 
@@ -277,3 +280,37 @@ plt.savefig('RULup_'+mole+'_'+tname_wind+'_'+b_maj+'_DEL_M2.pdf', bbox_inches='t
 #plt.show()
 plt.clf()
 #'''
+
+
+# =======================================================================================
+# M2 azimuthal average profiles
+# =======================================================================================
+# Radius range set
+r_min = 0.0;  r_max = 160.0   # in au unit
+dr = 8.0; nr = int(r_max/dr)
+r_bin = np.arange(r_min,r_max+dr,dr)
+rc = (r_bin[1:nr+1] + r_bin[0:nr])*0.5
+d_pc = 160.0 # Distant of the source
+outname = 'RULup_'+mole+'_'+b_maj+'_M2_aver_radial.dat'
+# M2 azimuthal average profile
+M2_aver = np.zeros_like(rc)
+M2w_aver = np.zeros_like(rc)
+cube = imagecube(fdir + fitsname)
+rvals, tvals, _ = cube.disk_coords(x0=dxc,y0=dyc,inc=inc,PA=DPA,z0=z0,psi=psi,z1=z1,phi=phi)
+r_au = rvals * d_pc
+for j in range(nr):
+    r_mask = np.logical_and(r_au >= r_bin[j], r_au <= r_bin[j+1])
+    PA_mask = np.logical_and(tvals >= PA_min*np.pi/180., tvals <= PA_max*np.pi/180.)
+    #v_mask = np.logical_and(vmodel >= -5.0e3, vmodel <= 5.0e3)
+    mask = r_mask*PA_mask#*v_mask
+    n_sample = np.sum(mask) ; idx,idy = np.where(mask >0)
+    M2_sample = np.zeros(n_sample); M2w_sample = np.zeros(n_sample)
+    for k in range(len(idx)):
+        M2_sample[k] = M2[idx[k],idy[k]]
+        M2w_sample[k] = M2w[idx[k],idy[k]]
+    M2_aver[j] = M2_sample.mean(); M2w_aver[j] = M2w_sample.mean()
+outfile=open(outname, 'w+')
+data=np.array((rc,M2_aver,M2w_aver))
+data=data.T
+np.savetxt(outfile, data, fmt='%13.8f', delimiter='  ',newline='\n')
+outfile.close()
