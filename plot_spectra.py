@@ -39,7 +39,7 @@ def Spec_fit(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
     mask = r_mask*PA_mask*v_mask
     nv, ny, nx = data.shape
     ndpnts = np.sum(mask)
-    a = np.zeros(ndpnts) ; b = np.zeros(ndpnts); c = np.zeros(ndpnts); d = np.zeros(ndpnts)
+    aa = np.zeros(ndpnts) ; bb = np.zeros(ndpnts); cc = np.zeros(ndpnts); dd = np.zeros(ndpnts)
     idx = np.zeros(ndpnts, dtype = np.intc); idy = np.zeros(ndpnts, dtype = np.intc)
     k = 0
     for i in range(nx):
@@ -47,12 +47,12 @@ def Spec_fit(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
             if mask[j,i]:
                 idx[k] = i ; idy[k] = j
                 try:
-                    [ a[k], b[k], c[k], d[k] ], pcov1 = curve_fit(Gaussian, vax, data[:,j,i], p0=[0.01,vmodel[j,i]*1e-3,0.2,0], bounds=([0,vmodel[j,i]*1e-3-1.0,0,0 ] ,[0.5,vmodel[j,i]*1e-3+1.0,2.0,1.0] ), absolute_sigma=True)
+                    [ aa[k], bb[k], cc[k], dd[k] ], pcov1 = curve_fit(Gaussian, vax, data[:,j,i], p0=[0.01,vmodel[j,i]*1e-3,0.2,0], bounds=([0,vmodel[j,i]*1e-3-1.0,0,0 ] ,[0.5,vmodel[j,i]*1e-3+1.0,2.0,1.0] ), absolute_sigma=True)
                 except RuntimeError:
                     print("Error - curve_fit failed at pixel [{:03d},{:03d}]".format(i,j))
                 k += 1
                 
-    return a,b,c,d,idx,idy
+    return aa,bb,cc,dd,idx,idy
 
 
 def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
@@ -62,8 +62,8 @@ def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
     mask = r_mask*PA_mask*v_mask
     nv, ny, nx = data.shape
     ndpnts = np.sum(mask)
-    a = np.zeros(ndpnts) ; b = np.zeros(ndpnts); c = np.zeros(ndpnts); d = np.zeros(ndpnts)
-    aa = np.zeros(ndpnts) #; bb = np.zeros(ndpnts); cc = np.zeros(ndpnts)
+    aa = np.zeros(ndpnts) ; bb = np.zeros(ndpnts); cc = np.zeros(ndpnts); dd = np.zeros(ndpnts)
+    aa2 = np.zeros(ndpnts) #; bb = np.zeros(ndpnts); cc = np.zeros(ndpnts)
     idx = np.zeros(ndpnts, dtype = np.intc); idy = np.zeros(ndpnts, dtype = np.intc)
     k = 0
     for i in range(nx):
@@ -71,12 +71,12 @@ def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
             if mask[j,i]:
                 idx[k] = i ; idy[k] = j #bb[k], cc[k],
                 try:
-                    [ a[k], b[k], c[k], aa[k],  d[k] ], pcov1 = curve_fit(Double, vax, data[:,j,i], p0=[0.01,vmodel[j,i]*1e-3,0.2,0.01,0], bounds=([1e-3,-5.0,0,1e-3,0] ,[1.0,5.0,2.0,0.5,1.0] ), absolute_sigma=True)
+                    [ aa[k], bb[k], cc[k], aa2[k],  dd[k] ], pcov1 = curve_fit(Double, vax, data[:,j,i], p0=[0.01,vmodel[j,i]*1e-3,0.2,0.01,0], bounds=([1e-3,-5.0,0,1e-3,0] ,[1.0,5.0,2.0,0.5,1.0] ), absolute_sigma=True)
                 except RuntimeError:
                     print("Error - curve_fit failed at pixel [{:03d},{:03d}]".format(i,j))
                 k += 1
             
-    return a,b,c,aa,d,idx,idy  #bb,cc,
+    return aa,bb,cc,aa2,dd,idx,idy  #bb,cc,
 
 
 # =======================================================================================

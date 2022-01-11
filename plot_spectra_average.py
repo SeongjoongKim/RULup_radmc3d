@@ -21,8 +21,10 @@ def Gaussian(x,a0,b0,c0,d0):
     return a0*np.exp(-(x-b0)**2/(2*c0**2)) +d0 #+ a1*np.exp(-(x-b0-d0)**2/(2*c0**2))
 
 
-def Double(x,a0,b0,c0,a1,d0):
-    return a0*np.exp(-(x-b0)**2/(2*c0**2)) + a1*np.exp(-(x-b0+0.6784)**2/(2*c0**2)) + d0 #+ a1*np.exp(-(x-b0-d0)**2/(2*c0**2))
+def Double(x,a0,b0,c0,a1,b1,d0):
+    return a0*np.exp(-(x-b0)**2/(2*c0**2)) + a1*np.exp(-(x-b0+b1)**2/(2*c0**2)) + d0 #+ a1*np.exp(-(x-b0-d0)**2/(2*c0**2))
+#def Double(x,a0,b0,c0,a1,d0):
+#    return a0*np.exp(-(x-b0)**2/(2*c0**2)) + a1*np.exp(-(x-b0+0.6784)**2/(2*c0**2)) + d0 #+ a1*np.exp(-(x-b0-d0)**2/(2*c0**2))
 
 
 def Spec_fit(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
@@ -43,11 +45,12 @@ def Spec_fit(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
                 shifted += shifted_spec
     shifted /= ndata
     try:
-        [ a, b, c, d ], pcov1 = curve_fit(Gaussian, vax, shifted, p0=[0.01,0,0.2,0], absolute_sigma=True)
+        [ aa, bb, cc, dd ], pcov1 = curve_fit(Gaussian, vax, shifted, p0=[0.01,0,0.2,0], absolute_sigma=True)
     except RuntimeError:
         print("Error - curve_fit failed")
+        aa,bb,cc,dd = [0.01,0,0.2,0]
     #print(ndpnts)
-    return shifted, a,b,c,d
+    return shifted, aa,bb,cc,dd
 
 
 def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
@@ -68,11 +71,12 @@ def Spec_double(data, vax, rr, tt, vmodel, r_min, r_max, PA_min, PA_max):
                 shifted += shifted_spec
     shifted /= ndata
     try:
-        [ a, b, c, aa,  d ], pcov1 = curve_fit(Double, vax, data[:,i,j], p0=[0.01,0,0.2,0.01,0], absolute_sigma=True)
+        [ aa, bb, cc, aa2, bb2, dd ], pcov1 = curve_fit(Double, vax, data[:,i,j], p0=[0.01,0,0.2,0.005,0.7,0], absolute_sigma=True)
     except RuntimeError:
         print("Error - curve_fit failed")
+        aa,bb,cc,aa2,bb2,dd = [0.01,0,0.2,0.005,0.7,0]
     #print(ndpnts)
-    return shifted, a,b,c,aa,d  #bb,cc,
+    return shifted, aa,bb,cc,aa2,bb2,dd  #bb,cc,
 
 
 # =======================================================================================
@@ -101,7 +105,7 @@ dxc = 0.00; dyc = 0.00
 z0 = 0.00;psi = 1.0; z1 = 0.0; phi = 1.0
 
 n_gauss = 4
-if double == 'T': n_gauss = 5
+if double == 'T': n_gauss = 6
 Summary_nowind = np.zeros((len(r_min), n_gauss))
 Summary_wind = np.zeros((len(r_min),n_gauss))
 Summary_obs = np.zeros((len(r_min),n_gauss))
@@ -192,7 +196,7 @@ for k in range(len(r_min)):
     vmod = convolve(vmod,gaussian_2D_kernel,boundary='fill',fill_value='0',normalize_kernel=True)
     if double == 'F':
         I_ave,a,b,c,d = Spec_fit(cube.data,cube.velax,rvals,tvals,vmod,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_nowind[k,:] = [a.mean(), b.mean(), c.mean(), d.mean()]
+        Summary_nowind[k,:] = [a, b, c, d]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_nowind.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a b c d\n')
             f.write('%13.6e %13.6e %13.6e %13.6e\n'%(a,b,c,d))
@@ -200,11 +204,14 @@ for k in range(len(r_min)):
             for i in range(len(I_ave)):
                 f.write('%13.6e \n'%(I_ave[i]))
     if double == 'T':
-        I_ave,a,b,c,a2,d = Spec_double(cube.data,cube.velax,rvals,tvals,vmod,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_nowind[k,:] = [a.mean(), b.mean(), c.mean(), a2.mean(), d.mean()]
+        #I_ave,a,b,c,a2,d = Spec_double(cube.data,cube.velax,rvals,tvals,vmod,r_min[k],r_max[k],PA_min,PA_max)
+        #Summary_nowind[k,:] = [a, b, c, a2, d]
+        I_ave,a,b,c,a2,b2,d = Spec_double(cube.data,cube.velax,rvals,tvals,vmod,r_min[k],r_max[k],PA_min,PA_max)
+        Summary_nowind[k,:] = [a, b, c, a2, b2, d]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_nowind_double.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a0 b0 c0 a1 d0\n')
-            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(a,b,c,a2,d))
+            #f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(a,b,c,a2,d))
+            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n'%(a,b,c,a2,b2,d))
             f.write('Keplerian corrected spectrum\n')
             for i in range(len(I_ave)):
                 f.write('%13.6e \n'%(I_ave[i]))
@@ -222,7 +229,7 @@ for k in range(len(r_min)):
     vmodw = convolve(vmodw,gaussian_2D_kernel,boundary='fill',fill_value='0',normalize_kernel=True)
     if double == 'F':
         I_avew,aw,bw,cw,dw = Spec_fit(cube_wind.data,cube_wind.velax,rvalsw,tvalsw,vmodw,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_wind[k,:] = [aw.mean(), bw.mean(), cw.mean(), dw.mean()]
+        Summary_wind[k,:] = [aw, bw, cw, dw]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_wind.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a b c d\n')
             f.write('%13.6e %13.6e %13.6e %13.6e\n'%(aw,bw,cw,dw))
@@ -230,11 +237,14 @@ for k in range(len(r_min)):
             for i in range(len(I_avew)):
                 f.write('%13.6e \n'%(I_avew[i]))
     if double == 'T':
-        I_avew,aw,bw,cw,aw2,dw = Spec_double(cube_wind.data,cube_wind.velax,rvalsw,tvalsw,vmodw,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_wind[k,:] = [aw.mean(), bw.mean(), cw.mean(), aw2.mean(), dw.mean()]
+        #I_avew,aw,bw,cw,aw2,dw = Spec_double(cube_wind.data,cube_wind.velax,rvalsw,tvalsw,vmodw,r_min[k],r_max[k],PA_min,PA_max)
+        #Summary_wind[k,:] = [aw, bw, cw, aw2, dw]
+        I_avew,aw,bw,cw,aw2,bw2,dw = Spec_double(cube_wind.data,cube_wind.velax,rvalsw,tvalsw,vmodw,r_min[k],r_max[k],PA_min,PA_max)
+        Summary_wind[k,:] = [aw, bw, cw, aw2, bw2,dw]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_wind_double.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a0 b0 c0 a1 d0\n')
-            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(aw,bw,cw,aw2,dw))
+            #f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(aw,bw,cw,aw2,dw))
+            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n'%(aw,bw,cw,aw2,bw2,dw))
             f.write('Keplerian corrected spectrum\n')
             for i in range(len(I_avew)):
                 f.write('%13.6e \n'%(I_avew[i]))
@@ -254,7 +264,7 @@ for k in range(len(r_min)):
     vmodo = convolve(vmodo,gaussian_2D_kernel,boundary='fill',fill_value='0',normalize_kernel=True)
     if double == 'F':
         I_aveo,ao,bo,co,do = Spec_fit(cube_obs.data,vel_obs,rvalso,tvalso,vmodo,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_obs[k,:] = [ao.mean(), bo.mean(), co.mean(), do.mean()]
+        Summary_obs[k,:] = [ao, bo, co, do]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_obs.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a b c d\n')
             f.write('%13.6e %13.6e %13.6e %13.6e\n'%(ao,bo,co,do))
@@ -262,11 +272,14 @@ for k in range(len(r_min)):
             for i in range(len(I_aveo)):
                 f.write('%13.6e \n'%(I_aveo[i]))
     if double == 'T':
-        I_aveo,ao,bo,co,ao2,do = Spec_double(cube_obs.data,vel_obs,rvalso,tvalso,vmodo,r_min[k],r_max[k],PA_min,PA_max)
-        Summary_obs[k,:] = [ao.mean(), bo.mean(), co.mean(), ao2.mean(), do.mean()]
+        #I_aveo,ao,bo,co,ao2,do = Spec_double(cube_obs.data,vel_obs,rvalso,tvalso,vmodo,r_min[k],r_max[k],PA_min,PA_max)
+        #Summary_obs[k,:] = [ao, bo, co, ao2, do]
+        I_aveo,ao,bo,co,ao2,bo2,do = Spec_double(cube_obs.data,vel_obs,rvalso,tvalso,vmodo,r_min[k],r_max[k],PA_min,PA_max)
+        Summary_obs[k,:] = [ao, bo, co, ao2, bo2, do]
         with open(dirName+'Spec_fit_rmin{:4.2f}_rmax{:4.2f}_params_obs_double.dat'.format(r_min[k],r_max[k]),'w+') as f:
             f.write('Gaussian parameters of a0 b0 c0 a1 d0\n')
-            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(ao,bo,co,ao2,do))
+            #f.write('%13.6e %13.6e %13.6e %13.6e %13.6e \n'%(ao,bo,co,ao2,do))
+            f.write('%13.6e %13.6e %13.6e %13.6e %13.6e %13.6e\n'%(ao,bo,co,ao2,bo2,do))
             f.write('Keplerian corrected spectrum\n')
             for i in range(len(I_aveo)):
                 f.write('%13.6e \n'%(I_aveo[i]))
@@ -287,11 +300,11 @@ for k in range(len(r_min)):
     ax1.plot(cube.velax,I_ave,'r',label='Wind X')
     ax1.plot(x1,y1,'r--')
     if double == 'F': ax1.plot(x1,Gaussian(x1,a,b,c,d),'c-.')
-    if double == 'T': ax1.plot(x1,Double(x1,a,b,c,a2,d),'c-.') #b2,c2,
+    if double == 'T': ax1.plot(x1,Double(x1,a,b,c,a2,b2,d),'c-.') #b2,c2,
     ax1.plot(cube_wind.velax,I_avew,'b',label='Wind O')
     ax1.plot(x2,y2,'b--')
     if double == 'F': ax1.plot(x1,Gaussian(x1,aw,bw,cw,dw),'m-.')
-    if double == 'T': ax1.plot(x1,Double(x1,aw,bw,cw,aw2,dw),'m-.') #,bw2,cw2
+    if double == 'T': ax1.plot(x1,Double(x1,aw,bw,cw,aw2,bw2,dw),'m-.') #,bw2,cw2
     #ax1.axvline(x=vmod[iy,ix]*1e-3,lw=0.8,ls='--',color='orange')
     #ax1.axvline(x=vmodw[iy,ix]*1e-3,lw=0.8,ls='--',color='g')
     ax1.axvline(x=0.0,lw=0.8,ls='--',color='k')
