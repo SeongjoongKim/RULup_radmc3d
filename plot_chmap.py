@@ -138,7 +138,7 @@ Imax=np.nanmax(image_cube[0])
 Imin=np.nanmin(image_cube[0])
 vmax=Imax; vmin=Imin
 #vmax=0.25; vmin=0
-col_levels=np.logspace(Imin,Imax,10)
+col_levels=np.logspace(Imin,Imax,20)
 
 if fits_cube['CTYPE3'] == 'FREQ':
     f0=fits_cube['CRVAL'][2]*1e-9
