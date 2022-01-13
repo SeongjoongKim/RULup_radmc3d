@@ -132,19 +132,19 @@ elif args.wind == 'T':
     z0 = 4.0*hp  #X*rs**(1.5+0.5*pltt)  # wind base
     rhog = np.zeros_like(rs)   # [g/cm3] in Spherical (r,theta)
     Bp = np.zeros_like(rs)
-    vz = np.zeros_like(rs)
-    # Calculate rho_gas, Bp, and vz: Bp and vz are values along cylindrical z axis.
+    vp = np.zeros_like(rs)
+    # Calculate rho_gas, Bp, and vp: Bp and vp are values along cylindrical z axis.
     for i in range(0,nr):
         for j in range(0,ntheta):
             if (zs[i,j,0]<=z0[i,j,0]):
                 rhog[i,j,0] = ( sigmag[i,j,0] / (np.sqrt(2.e0*np.pi)*hp[i,j,0]) ) * np.exp(-zs[i,j,0]**2/hp[i,j,0]**2/2.e0)  #[g/cm3]
                 Bp[i,j,0] = B_mid[i,j,0]
-                vz[i,j,0] = Cw*sigmag[i,j,0]*omk[i,j,0]/rhog[i,j,0]   # Suzuki et al. 2010, ApJ, 718, 1289
+                vp[i,j,0] = Cw*sigmag[i,j,0]*omk[i,j,0]/rhog[i,j,0]   # Suzuki et al. 2010, ApJ, 718, 1289
             else:
                 if (zs[i,j,0]-rs[i,j,0] > zb_inedge):
                     rhog[i,j,0] = 0.
                     Bp[i,j,0] = 0.
-                    vz[i,j,0] = 0.
+                    vp[i,j,0] = 0.
                 else:
                     R0 = calculate_R0(rs[i,j,0],zs[i,j,0],t0,r0,pltt,mstar)   #z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
                     if R0<1*au:
@@ -160,7 +160,7 @@ elif args.wind == 'T':
                     B_mid_R0 = np.sqrt((8*np.pi*P_mid_R0)/beta_0)
                     rhog[i,j,0] = rhog_R0 * np.exp(-8.0) * np.exp(-(cs_R0/R0/omk_R0)**(-0.6) * np.sqrt((zs[i,j,0]-(4*hp_R0))/R0 ) )
                     Bp[i,j,0] = B_mid_R0* (rs[i,j,0]/R0)**alpha_B #*np.cos(45.*np.pi/180.)  # Bai 2016, ApJ, 818,152
-                    vz[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0] #*np.cos(45.*np.pi/180.)
+                    vp[i,j,0] = Cw*sigmag_R0*omk_R0*Bp[i,j,0]/B_mid_R0/rhog[i,j,0]
     # Dust density
     #sigmad  = sigmad0*(rs/rd0/au)**plsig*np.exp(-(rs/rde0/au)**2.0)
     rhod = rho_normal(rs,zs,sigmad,hp_biggr)
@@ -205,13 +205,18 @@ vtheta   = np.zeros_like(rr)
 vphi = np.sqrt(GG*mstar/rr)
 vturb    = 1e-3*vphi     # < ---------------------------- vturb
 if args.wind == 'T':
-    vr = vz*np.cos(tt)
-    vtheta = -vz*np.sin(tt)
+    vr = (vp*np.cos(45.*np.pi/180.))*np.cos(tt)
+    vtheta = -(vp*np.cos(45.*np.pi/180.))*np.sin(tt)
+    for i in range(0,nr):
+        for j in range(0,ntheta):
+            if vp[i,j,0]>vphi[i,j,0]:
+                vr[i,j,0] = vphi[i,j,0]*np.cos(tt[i,j,0])
+                vtheta[i,j,0] = -vphi[i,j,0]*np.sin(tt[i,j,0])
 write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
 
 # Monte Carlo parameters ----------------------------------
 if args.calmode == 'T':
     nphot    = 3000000   # for fiducial_wind, 1e6 due to the limit of cal. time
 elif args.calmode == 'I':
-    nphot    = 100000   # < ---------------------------- nphot
+    nphot    = 1000000   # < ---------------------------- nphot
 write_radmc_input(nphot,2,LTE=True)

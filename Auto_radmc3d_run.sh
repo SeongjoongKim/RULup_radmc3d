@@ -2,15 +2,15 @@
 # the meaning of name:
 # fiducial = DSHARP_H0.1_D0.1_S0.001_3e6
 # wind_fiducial = wind_DSHARP_H0.1_D0.1_S0.001_3e6
-name=fiducial
+name=fiducial_wind
 
 #--------------------------------------------------------------------------------------------
 # Setup the input files for temperature calculation
-python problem_setup.py -calmode "T" -wind "F"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
 # Calculate the dust temperature
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
-radmc3d mctherm setthreads 4
+radmc3d mctherm setthreads 6
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
 
@@ -20,7 +20,7 @@ cp dust_temperature.dat "Tdust_"$name".dat"      # Copy T file
 # Setup the input files for imaging
 python make_gas_temperature.py -file $name      # Separate Tdust & Tgas
 python make_turb_file.py -file $name
-python problem_setup.py -calmode "I" -wind "F"  # Set large grain only for imaging
+python problem_setup.py -calmode "I" -wind "T"  # Set large grain only for imaging
 #'''
 #--------------------------------------------------------------------------------------------
 # Continuum
@@ -130,7 +130,7 @@ python plot_moments.py -mole $mole -bmaj "bmaj5" -tname $tname
 
 #--------------------------------------------------------------------------------------------
 # Ploting subtractions of Moment 1 and 2 maps of two specific molecules (mole1-mole2)
-mole1=CN_3-2
+mole1=12CO_2-1
 mole2=C18O_2-1
 tname=fiducial_wind
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj51" -tname $tname
