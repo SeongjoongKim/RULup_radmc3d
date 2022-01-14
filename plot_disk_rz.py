@@ -106,7 +106,7 @@ vphi=vphi.reshape((ntheta,nr)).T*1e-5
 
 # Plotting radial velocity field  ------------------------------------
 plt.figure(figsize=(10,6))
-plt.pcolormesh(np.log10(rr/au),np.log10(zzr),vr,norm=colors.LogNorm(vmin=1e-2,vmax=1),cmap='jet',shading='gouraud',rasterized=True)
+plt.pcolormesh(np.log10(rr/au),np.log10(zzr),vr,norm=colors.LogNorm(vmin=3e-2,vmax=30),cmap='jet',shading='gouraud',rasterized=True)
 #plt.pcolormesh(np.log10(rr/au),np.log10(zzr),rhod_biggr,cmap='gist_heat',norm=colors.LogNorm(vmin=3e-13,vmax=3e-10),shading='gouraud')
 #plt.plot(np.log10(a_2/au),layer12,'k',lw=2,label=r'$\tau_{\rm 12CO}$=1')
 #plt.plot(np.log10(a_2/au),layer13,'k--',lw=2,label=r'$\tau_{\rm 13CO}$=1')
@@ -122,7 +122,7 @@ plt.savefig('Vgas_radial_'+test+'.pdf',dpi=100, bbox_inches='tight')
 
 # Plotting theta velocity field  ------------------------------------
 plt.figure(figsize=(10,6))
-plt.pcolormesh(np.log10(rr/au),np.log10(zzr),abs(vtheta),norm=colors.LogNorm(vmin=1e-2,vmax=1),cmap='jet',shading='gouraud',rasterized=True)
+plt.pcolormesh(np.log10(rr/au),np.log10(zzr),abs(vtheta),norm=colors.LogNorm(vmin=3e-2,vmax=30),cmap='jet',shading='gouraud',rasterized=True)
 #plt.pcolormesh(np.log10(rr/au),np.log10(zzr),rhod_biggr,cmap='gist_heat',norm=colors.LogNorm(vmin=3e-13,vmax=3e-10),shading='gouraud')
 #plt.plot(np.log10(a_2/au),layer12,'k',lw=2,label=r'$\tau_{\rm 12CO}$=1')
 #plt.plot(np.log10(a_2/au),layer13,'k--',lw=2,label=r'$\tau_{\rm 13CO}$=1')
@@ -222,7 +222,7 @@ mH = 1.0/NA
 sigma=np.sqrt(2.*kb*temp_smlgr/mu/mH).reshape(nr,ntheta)*1e-5
 # Plot Tdust distribution in r,z plane ------------------------------------
 plt.figure(figsize=(10,6))
-plt.pcolormesh(np.log10(rr/au),np.log10(zzr),sigma,cmap='jet',norm=colors.LogNorm(vmin=1e-1,vmax=1e0),shading='gouraud',rasterized=True)
+plt.pcolormesh(np.log10(rr/au),np.log10(zzr),sigma,cmap='jet',norm=colors.LogNorm(vmin=1e-1,vmax=1e1),shading='gouraud',rasterized=True)
 plt.xlim(-1,2.4)
 plt.ylim(-2,-0.25)
 plt.xlabel(r'log$_{10}$(r/1 AU)', fontsize=15)
@@ -238,7 +238,7 @@ vturb = vphi*1e-3
 vr.max(), vtheta.min(),vturb.max(),sigma.max()
 
 plt.figure(figsize=(10,6))
-plt.pcolormesh(np.log10(rr/au),np.log10(zzr),abs(vtheta)/sigma,cmap='jet',norm=colors.LogNorm(vmin=1e-2,vmax=1e-1),shading='gouraud',rasterized=True)
+plt.pcolormesh(np.log10(rr/au),np.log10(zzr),abs(vtheta)/sigma,cmap='jet',norm=colors.LogNorm(vmin=1e-1,vmax=1e0),shading='gouraud',rasterized=True)
 plt.xlim(-1,2.4)
 plt.ylim(-2,-0.25)
 plt.xlabel(r'log$_{10}$(r/1 AU)', fontsize=15)

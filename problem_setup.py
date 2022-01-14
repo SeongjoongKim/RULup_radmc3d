@@ -133,6 +133,7 @@ elif args.wind == 'T':
     rhog = np.zeros_like(rs)   # [g/cm3] in Spherical (r,theta)
     Bp = np.zeros_like(rs)
     vp = np.zeros_like(rs)
+    vk_R0 = np.ones_like(rs)
     # Calculate rho_gas, Bp, and vp: Bp and vp are values along cylindrical z axis.
     for i in range(0,nr):
         for j in range(0,ntheta):
@@ -154,6 +155,7 @@ elif args.wind == 'T':
                     t_R0 = t0 * (R0/r0)**pltt
                     cs_R0 = np.sqrt(kb*t_R0/(2.3*mp))
                     omk_R0 = np.sqrt(GG*mstar/R0**3)
+                    vk_R0[i,j,0] = omk_R0*R0
                     hp_R0 = cs_R0 / omk_R0
                     rhog_R0 = sigmag_R0 / np.sqrt(2.e0*np.pi)/hp_R0
                     P_mid_R0 = rhog_R0*cs_R0**2
@@ -204,14 +206,10 @@ vr       = np.zeros_like(rr)
 vtheta   = np.zeros_like(rr)
 vphi = np.sqrt(GG*mstar/rr)
 vturb    = 1e-3*vphi     # < ---------------------------- vturb
+vwind = (vp**-1 + vk_R0**-1)**-1
 if args.wind == 'T':
-    vr = (vp*np.cos(45.*np.pi/180.))*np.cos(tt)
-    vtheta = -(vp*np.cos(45.*np.pi/180.))*np.sin(tt)
-    for i in range(0,nr):
-        for j in range(0,ntheta):
-            if vp[i,j,0]>vphi[i,j,0]:
-                vr[i,j,0] = vphi[i,j,0]*np.cos(tt[i,j,0])
-                vtheta[i,j,0] = -vphi[i,j,0]*np.sin(tt[i,j,0])
+    vr = (vwind*np.cos(45.*np.pi/180.))*np.cos(tt)
+    vtheta = -(vwind*np.cos(45.*np.pi/180.))*np.sin(tt)
 write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
 
 # Monte Carlo parameters ----------------------------------
