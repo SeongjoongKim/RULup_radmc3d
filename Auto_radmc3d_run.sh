@@ -82,10 +82,10 @@ python FITS_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
 
 #'''
 #name=fiducial
-python problem_setup.py -calmode "T" -wind "F"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
 python plot_disk_rz.py -file $name               # Plot the disk temperature and density distribution in r-z plane
 
-python problem_setup.py -calmode "I" -wind "F"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "I" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
 # Plotting image maps
 python plot_maps.py -file $name"_bmaj51" -dist 160.0
 python plot_maps.py -file $name"_bmaj5" -dist 160.0
