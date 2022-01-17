@@ -10,6 +10,7 @@ from astropy.wcs import WCS
 from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingArea, TextArea, VPacker)#from Model_setup_subroutines import *
 from gofish import imagecube
 import argparse
+import os
 
 # =======================================================================================
 # Functions
@@ -83,6 +84,8 @@ z0 = 0.00;psi = 1.0; z1 = 0.0; phi = 1.0
 # =======================================================================================
 fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial/'
 fitsname = 'RULup_'+mole+'_'+tname+'_'+b_maj+'.fits'  #
+if not os.path.exists(fdir+fitsname):
+    fitsname = 'RULup_'+mole+'_fiducial_'+b_maj+'.fits'
 hdu = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
 data = hdu.data#[0,0,:,:]      # Save the data part
 nx = hdu.header['NAXIS1']; ny = hdu.header['NAXIS2']; nv = hdu.header['NAXIS3']  # Set up axis lengths
@@ -157,7 +160,7 @@ fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_s
 if len(tname.split('_')) == 1:
     tname_wind = tname+'_wind'
 else:
-    tname_wind = tname.split('_')[0]+'_wind_'+tname.split('_')[1]
+    tname_wind = tname #tname.split('_')[0]+'_wind_'+tname.split('_')[1]
 fitsname = 'RULup_'+mole+'_'+tname_wind+'_'+b_maj+'.fits'  #
 hduw = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
 dataw = hduw.data#[0,0,:,:]      # Save the data part
@@ -291,7 +294,7 @@ dr = 8.0; nr = int(r_max/dr)
 r_bin = np.arange(r_min,r_max+dr,dr)
 rc = (r_bin[1:nr+1] + r_bin[0:nr])*0.5
 d_pc = 160.0 # Distant of the source
-outname = 'RULup_'+mole+'_'+b_maj+'_M2_aver_radial.dat'
+outname = 'RULup_'+mole+'_'+tname_wind+'_'+b_maj+'_M2_aver_radial.dat'
 # M2 azimuthal average profile
 M2_aver = np.zeros_like(rc)
 M2w_aver = np.zeros_like(rc)

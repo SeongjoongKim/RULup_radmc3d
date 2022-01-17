@@ -81,7 +81,7 @@ python FITS_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
 #'''
 
 #'''
-#name=fiducial
+#name=fiducial_wind_rot
 python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
 python plot_disk_rz.py -file $name               # Plot the disk temperature and density distribution in r-z plane
 
@@ -104,6 +104,10 @@ python azimuthal_average.py -file $name -bmaj "bmaj51"
 python plot_radial.py -file $name"_bmaj51"
 python plot_radial.py -file $name"_bmaj5"
 
+
+
+#--------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
 #--------------------------------------------------------------------------------------------
 # Ploting spectrum at each pixel
 tname=fiducial
@@ -124,13 +128,13 @@ python plot_spectra_average.py -mole "CN_3-2" -bmaj "bmaj5" -double "T" -tname $
 #--------------------------------------------------------------------------------------------
 # Ploting Moment 1 and 2 maps of the models
 mole=CN_3-2
-tname=fiducial
+tname=fiducial_wind
 python plot_moments.py -mole $mole -bmaj "bmaj51" -tname $tname
 python plot_moments.py -mole $mole -bmaj "bmaj5" -tname $tname
 
 #--------------------------------------------------------------------------------------------
 # Ploting subtractions of Moment 1 and 2 maps of two specific molecules (mole1-mole2)
-mole1=12CO_2-1
+mole1=CN_3-2
 mole2=C18O_2-1
 tname=fiducial_wind
 python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj51" -tname $tname

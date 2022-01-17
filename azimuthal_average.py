@@ -17,7 +17,7 @@ test = args.file
 bmaj = args.bmaj
 
 # File name set
-fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial/'
+fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
 mole = ['12CO_2-1','13CO_2-1','13CO_3-2','C18O_2-1','C18O_3-2','CN_3-2','cont220GHz','cont336GHz']
 #test = 'fiducial'
 #bmaj = 'bmaj51'
