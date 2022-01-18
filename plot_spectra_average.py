@@ -115,7 +115,7 @@ Summary_obs = np.zeros((len(r_min),n_gauss))
 # =======================================================================================
 # Set No wind model fits file
 fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial/'
-fitsname = 'RULup_'+mole+'_fiducial_'+tname+'_'+bmaj+'.fits'
+fitsname = 'RULup_'+mole+'_'+tname+'_'+bmaj+'.fits'
 if not os.path.exists(fdir+fitsname):
     fitsname = 'RULup_'+mole+'_fiducial_'+bmaj+'.fits'
 cube = imagecube(fdir+fitsname)
@@ -123,8 +123,8 @@ cube = imagecube(fdir+fitsname)
 
 # Set Wind model fits file
 fdir2 = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
-windname = 'RULup_'+mole+'_fiducial_wind_'+tname+'_'+bmaj+'.fits'#
-if not os.path.exists(fdir2+fitsname):
+windname = 'RULup_'+mole+'_'+tname+'_'+bmaj+'.fits'#
+if not os.path.exists(fdir2+windname):
     windname = 'RULup_'+mole+'_fiducial_wind_'+bmaj+'.fits'#
 cube_wind = imagecube(fdir2+windname)
 #for ii in range(cube_wind.header['NAXIS3']): cube_wind.data[ii,:,:] = cube_wind.data[ii,:,:].T
