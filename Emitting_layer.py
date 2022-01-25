@@ -33,9 +33,9 @@ h = 6.62607004e-27       # Planck function [ cm2 g s-1]
 # Set the model with/without disk wind
 #==============================================================
 wind='T' # Set wind model
-test='fiducial_wind_rot_wind'  # file name of Tdust_test.dat
-mole = 'CN_3-2'; bmaj = 'bmaj5'  # Set molecule and resolution
-tname = 'fiducial_wind_rot_wind'          # Set file name for test
+test='fiducial_wind_sgtest'  # file name of Tdust_test.dat
+mole = '13CO_3-2'; bmaj = 'bmaj5'  # Set molecule and resolution
+tname = test #'fiducial_wind'          # Set file name for test
 
 #==============================================================
 # Read grid file and set spherical & cylindrical coordinates
@@ -292,7 +292,7 @@ chans = [85,114]
 surface = cube.get_emission_surface(inc=inc,PA=DPA,r_min=0,r_max=1.5,chans=chans,smooth=0.5)
 #surface.plot_surface()
 cube.plot_peaks(surface=surface)
-plt.savefig('RULup_'+mole+'_'+tname+'_disksurf_peaks.pdf',dpi=100,bbox_inches='tight')
+plt.savefig('./chmaps/RULup_'+mole+'_'+tname+'_'+bmaj+'_disksurf_peaks.pdf',dpi=100,bbox_inches='tight')
 r_surf, z_surf = [surface.r(side='front')* distance, surface.z(side='front')* distance]
 
 #"""
@@ -320,7 +320,7 @@ plt.tick_params(which='both',length=6,width=1.5)
 cbar = plt.colorbar(im, ticks=[20,40,60,80,100,120,140,200])
 cbar.ax.set_yticklabels([20,40,60,80,100,120,140,200])
 #plt.savefig('Tdust_rz_small.pdf',dpi=100, bbox_inches='tight')
-plt.savefig('Tgas_rz_cyl_interp_'+mole+'_'+tname+'_layer.pdf',dpi=100,bbox_inches='tight')
+plt.savefig('./chmaps/Tgas_rz_cyl_interp_'+mole+'_'+tname+'_'+bmaj+'_layer.pdf',dpi=100,bbox_inches='tight')
 #==============================================================
 # Radial T profile at the emitting surface
 #==============================================================
@@ -336,7 +336,7 @@ plt.ylabel(r'T$_{gas}$',fontsize=15)
 plt.legend(prop={'size':15},loc=0)
 plt.tick_params(which='both',length=6,width=1.5)
 #plt.colorbar(ticks=[10,20,30,40,50,60,70,80,90,100,200])
-plt.savefig('Tdust_radial_'+tname+'_Emit_layer.pdf',dpi=100, bbox_inches='tight')
+plt.savefig('./chmaps/Tdust_radial_'+tname+'_'+bmaj+'_Emit_layer.pdf',dpi=100, bbox_inches='tight')
 #plt.savefig('temp_rz_big.pdf',dpi=100, bbox_inches='tight')
 #"""
 

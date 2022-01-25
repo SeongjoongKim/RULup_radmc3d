@@ -106,12 +106,12 @@ tname = args.tname
 # Read files
 # =======================================================================================
 fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
-fitsname = 'RULup_'+mole+'_fiducial_wind_'+tname+'_'+bmaj+'.fits'
+fitsname = 'RULup_'+mole+'_'+tname+'_'+bmaj+'.fits'
 if not os.path.exists(fdir+fitsname):
     fitsname = 'RULup_'+mole+'_fiducial_wind_'+bmaj+'.fits'
 
 save=True               # Whether to save as a figure
-savename='RULup_'+mole+'_fiducial_wind_'+tname+'_'+bmaj+'_chmap.pdf'    # Figure name
+savename='RULup_'+mole+'_'+tname+'_'+bmaj+'_chmap.pdf'    # Figure name
 if tname == 'fiducial' or tname == 'fiducial_wind':
     savename='RULup_'+mole+'_fiducial_wind_'+bmaj+'_chmap.pdf'    # Figure name
 
@@ -174,6 +174,6 @@ grid.cbar_axes[0].set_ylabel(r'$\mathrm{Jy\ beam^{-1}}$')
 #grid.cbar_axes[0].set_yticks((vmin,vmax))
 
 if save:
-    plt.savefig(savename, bbox_inches='tight', pad_inches=0.1)
+    plt.savefig('./chmaps/'+savename, bbox_inches='tight', pad_inches=0.1)
 else:
     plt.show()
