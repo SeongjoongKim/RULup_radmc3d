@@ -198,7 +198,7 @@ plt.ylabel(r'log$_{10}$(z/r)',fontsize=15)
 plt.tick_params(which='both',length=6,width=1.5)
 plt.colorbar(ticks=[10,20,30,40,50,60,70,80,90,100,200])
 plt.savefig('Tgas_rz_'+test+'.pdf',dpi=100,bbox_inches='tight')
-    
+
 # Radial T profile at the midplane ------------------------------------
 plt.figure(figsize=(10,6))
 plt.plot(rr[:,-1]/au,temp_biggr[:,-1],'k',lw=2,label=r'Midplane T$_{\rm dust}$')
@@ -260,3 +260,24 @@ plt.tick_params(which='both',length=6,width=1.5)
 plt.colorbar(ticks=[5e-3,75.e-3,1e-2,2.5e-2,5e-2])
 #plt.savefig('Tdust_rz_small.pdf',dpi=100, bbox_inches='tight')
 plt.savefig('Thermal_vs_turb_'+test+'.pdf',dpi=100,bbox_inches='tight')
+
+
+# ============================================================================================
+#    Overlay gas density, gas temperature, and theta velocity
+# ============================================================================================
+
+
+plt.figure(figsize=(10,6))
+im = plt.pcolormesh(np.log10(rr/au),np.log10(zzr),rhog,cmap='jet',norm=colors.LogNorm(vmin=1e-16,vmax=1e-9),shading='gouraud',rasterized=True)
+TT = plt.contour(np.log10(rr/au),np.log10(zzr),temp_smlgr,[20,30,40,50,70,100,150,200,300],ls='solid',colors='gray')
+plt.clabel(TT)
+vv = plt.contour(np.log10(rr/au),np.log10(zzr),vtheta,[-10,-5,-1,-0.5],ls='dashed',colors='w')
+plt.clabel(vv)
+plt.xlim(-1,2.4)
+plt.ylim(-2,-0.25)
+plt.xlabel(r'log$_{10}$(r/1 AU)', fontsize=15)
+plt.ylabel(r'log$_{10}$(z/r)',fontsize=15)
+plt.tick_params(which='both',length=6,width=1.5)
+plt.colorbar(im)
+plt.savefig('Gas_information_'+test+'.pdf',dpi=100,bbox_inches='tight')
+
