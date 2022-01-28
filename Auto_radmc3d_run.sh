@@ -10,7 +10,7 @@ python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculat
 # Calculate the dust temperature
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
-radmc3d mctherm setthreads 6
+radmc3d mctherm setthreads 6 countwrite 100000
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
 
@@ -74,6 +74,7 @@ radmc3d image imolspec 3 iline 3 incl 25.0 posang 239.0 setthreads 4 widthkms 6.
 mv image.out image_C18O_32.out
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
+
 #--------------------------------------------------------------------------------------------
 # converting ascii result file to fits
 python FITS_convert.py -file $name -dist 160.0
@@ -142,9 +143,13 @@ python plot_moments_sub.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj5" -tname $tna
 
 #--------------------------------------------------------------------------------------------
 # Ploting Channel maps
-mole=C18O_3-2
+mole=CN_3-2
 tname=fiducial_wind
 python plot_chmap.py -mole $mole -bmaj "bmaj51" -tname $tname
+python plot_chmap.py -mole $mole -bmaj "bmaj5" -tname $tname
+
+# plotting emitting layers
+python Emitting_layer.py # you need to set the parameters in the python script file.
 
 '''
 mole="CN_3-2"
@@ -183,4 +188,58 @@ python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj51" -double "F" -rm
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj5" -double "F" -rmin 0.65 -rmax 0.75 -PAmin 45 -PAmax 135
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj51" -double "F" -rmin 0.75 -rmax 0.85 -PAmin 45 -PAmax 135
 python plot_spectra_average_LWtest.py -mole $mole -bmaj "bmaj5" -double "F" -rmin 0.75 -rmax 0.85 -PAmin 45 -PAmax 135
+
+#--------------------------------------------------------------------------------------------
+# Making tau = 1 surface cube
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 setthreads 4 noline lambda 1362.8404254642091 npix 500 sizeau 800 incl 25.0 posang 239.0 #nphot_scat 100000
+mv image.out image_cont220GHz_tau1.out
+mv tausurface_3d.out image_cont220GHz_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 setthreads 4 noline lambda 891.505 npix 500 sizeau 800 incl 25.0 posang 239.0 #nphot_scat 100000
+mv image.out image_cont336GHz_tau1.out
+mv tausurface_3d.out image_cont336GHz_tau1_3d.out
+#--------------------------------------------------------------------------------------------
+# Line emission
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 1 iline 2 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_12CO_21_tau1.out
+mv tausurface_3d.out image_12CO_21_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 4 iline 42,44,47 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_CN_32_tau1.out
+mv tausurface_3d.out image_CN_32_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 2 iline 2 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_13CO_21_tau1.out
+mv tausurface_3d.out image_13CO_21_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 2 iline 3 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_13CO_32_tau1.out
+mv tausurface_3d.out image_13CO_32_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 3 iline 2 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_C18O_21_tau1.out
+mv tausurface_3d.out image_C18O_21_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+radmc3d tausurf 1.0 imolspec 3 iline 3 incl 25.0 posang 239.0 setthreads 4 widthkms 6.0 linenlam 200 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_C18O_32_tau1.out
+mv tausurface_3d.out image_C18O_21_tau1_3d.out
+TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
+echo $TIMESTAMP
+
+python FITS_tau_convert.py -file $name -dist 160.0
 '''
+name=fiducial_wind_inc205_pa239
+radmc3d image imolspec 1 iline 2 incl 205.0 posang 239.0 setthreads 4 widthkms 2.5 linenlam 50 npix 500 sizeau 800 #doppcatch   #nphot_scat 400000 #
+mv image.out image_12CO_21.out
+python FITS_convert.py -file $name -dist 160.0
+

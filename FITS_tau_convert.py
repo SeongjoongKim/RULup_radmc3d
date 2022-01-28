@@ -38,8 +38,10 @@ freq0=[230.538,220.398684,330.587965,219.9762,329.330553,340.247770,219.9762,336
 #freq0=[230.538,336.2768]
 
 # observation fits file for copying header information
-B6dir = '/lfs09/kimso/RU_Lup/Huang_data/new_calibrated/'
-filename = B6dir+'13CO_all_selfcal_p1st_matched_cube500.fits'
+B6dir = '/Users/kimsj/Documents/RU_Lup/Fin_fits/'
+filename = B6dir+'13CO_2-1_selfcal_wc_matched_cube500.fits'
+#B6dir = '/lfs09/kimso/RU_Lup/Huang_data/new_calibrated/'
+#filename = B6dir+'13CO_all_selfcal_p1st_matched_cube500.fits'
 hdu = fits.open(filename)[0]
 #header_new = hdu.header
 
@@ -64,7 +66,7 @@ for j in range(len(fnameread)):
     #beam_solidangle=bmaj*bmin*np.pi/4.0/np.log(2)     # DSHARP 12CO resolution ~ 0.095X0.083 arcsec
     im_Jypbeam=im#_Jypbeam*beam_solidangle/pixcel_solidangle
     im_Jypbeam[np.where(im==-1e91)] = 0.0
-    zratio = im_Jypbeam/au/rr_au
+    #zratio = im_Jypbeam/au/rr_au
     # Make fits header ------------------------------------------------------------------
     # Set velocity axis
     nchans=nlam
@@ -116,7 +118,7 @@ for j in range(len(fnameread)):
     hdr['EPOCH'] = 2000.
     hdr['RESTFREQ'] = freq0[j]*1e9
     hdr['OBJECT'] = 'RU_Lup'
-    hdu = fits.PrimaryHDU(zratio,hdr)
+    hdu = fits.PrimaryHDU(im_Jypbeam,hdr)
     hdu.writeto(outfile[j],overwrite=True,output_verify='fix')
     
 

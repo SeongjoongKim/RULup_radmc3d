@@ -38,6 +38,8 @@ freq0=[230.538,220.398684,330.587965,219.9762,329.330553,340.247770,219.9762,336
 #freq0=[230.538,336.2768]
 
 # observation fits file for copying header information
+#B6dir = '/Users/kimsj/Documents/RU_Lup/Fin_fits/'
+#filename = B6dir+'13CO_2-1_selfcal_wc_matched_cube500.fits'
 B6dir = '/lfs09/kimso/RU_Lup/Huang_data/new_calibrated/'
 filename = B6dir+'13CO_all_selfcal_p1st_matched_cube500.fits'
 hdu = fits.open(filename)[0]

@@ -517,6 +517,29 @@ def read_image_ascii(file):
         return im_nx,im_ny,nlam,pixsize_x,pixsize_y,im,rr_au,phi
 
 
+def read_tau3D_ascii(file):
+    fnameread = file
+    with open(fnameread,'r') as f:
+        s         = f.readline()
+        im_n      = f.readline()
+        im_nx     = int(im_n.split()[0])
+        im_ny     = int(im_n.split()[1])
+        nlam      = int(f.readline())
+        wavelength_mic = np.zeros(nlam)
+        im_x    = np.zeros((nlam,im_ny,im_nx))
+        im_y    = np.zeros((nlam,im_ny,im_nx))
+        im_z    = np.zeros((nlam,im_ny,im_nx))
+        for ilam in range(nlam): wavelength_mic[ilam] = f.readline()
+        for ilam in range(nlam):
+            dummy = f.readline() #blank line
+            for iy in range(im_ny):
+                for ix in range(im_nx):
+                    image_temp        = f.readline()
+                    im_x[ilam,iy,ix]    = image_temp.split()[0]
+                    im_y[ilam,iy,ix]    = image_temp.split()[1]
+                    im_z[ilam,iy,ix]    = image_temp.split()[2]
+    return im_nx,im_ny,nlam,im_x,im_y,im_z
+
 
 def read_vel_input(file):
     fnameread = file
