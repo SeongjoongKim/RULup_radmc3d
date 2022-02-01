@@ -137,8 +137,10 @@ y0_cube=(fits_cube['CRVAL'][1]*u.degree).to(u.arcsec).value
 Imax=np.nanmax(image_cube[0])
 Imin=np.nanmin(image_cube[0])
 vmax=Imax; vmin=Imin
+#vmax=max(abs(Imax),abs(Imin)); vmin=-max(abs(Imax),abs(Imin))
 #vmax=0.25; vmin=0
 col_levels=np.logspace(Imin,Imax,20)
+#col_levels=np.logspace(vmin,vmax,20)
 
 if fits_cube['CTYPE3'] == 'FREQ':
     f0=fits_cube['CRVAL'][2]*1e-9
