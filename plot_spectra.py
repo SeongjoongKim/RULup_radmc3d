@@ -278,47 +278,66 @@ for k in range(len(r_min)):
     # Plotting the spectrum at each pixels included in the mask
     # =======================================================================================
     del_x = idx; del_y = idy
-    for i in range(100): #len(del_x)):
-        ix = del_x[i];  iy=del_y[i]
-        spec = cube.data[:,iy,ix]
-        #shifted_spec = interp1d(x1-vmod[iy,ix]*1e-3,spec,bounds_error=False)(x1)
-        spec_wind = cube_wind.data[:,iy,ix]
-        #shifted_wind = interp1d(x1-vmod[iy,ix]*1e-3,spec_wind,bounds_error=False)(x1)
-        spec_obs = cube_obs.data[:,iy,ix]
-        fig = plt.figure(figsize=(12,5))
-        grdspec = gridspec.GridSpec(ncols=2, nrows=1, figure=fig)
-        ax1 = fig.add_subplot(grdspec[0])
-        ax1.set_xlim(-6,6)
-        ax1.set_xlabel('Vel [km/s]')
-        ax1.set_ylabel('I$_{model}$ [Jy/beam]')
-        ax1.plot(x1,spec,'r',label='Wind X')
-        #ax1.plot(x1,shifted_spec,'r--')
-        if double == 'F': ax1.plot(x1,Gaussian(x1,a[i],b[i],c[i],d[i]),'c-.')
-        if double == 'T': ax1.plot(x1,Double(x1,a[i],b[i],c[i],a2[i],d[i]),'c-.')
-        ax1.plot(x1,spec_wind,'b',label='Wind O')
-        #ax1.plot(x1,shifted_wind,'b--')
-        if double == 'F': ax1.plot(x1,Gaussian(x1,aw[i],bw[i],cw[i],dw[i]),'m-.')
-        if double == 'T': ax1.plot(x1,Double(x1,aw[i],bw[i],cw[i],aw2[i],dw[i]),'m-.')
-        ax1.axvline(x=vmod[iy,ix]*1e-3,lw=0.8,ls='--',color='g')
-        ax1.axvline(x=0.0,lw=0.8,ls='--',color='k')
-        ax3 = ax1.twinx()
-        ax3.set_xlim(-6,6)
-        ax3.set_ylabel('I$_{obs}$ [Jy/beam]')
-        ax3.plot(vel_obs,spec_obs,'k--',label='Obs',lw=0.3)
-        if bmaj == 'bmaj51':
-            if double == 'F': ax3.plot(vel_obs,Gaussian(vel_obs,ao[i],bo[i],co[i],do[i]),'k-.', lw=0.5)
-            if double == 'T': ax3.plot(vel_obs,Double(vel_obs,ao[i],bo[i],co[i],ao2[i],do[i]),'k-.', lw=0.5)
-        ax1.legend(prop={'size':12},loc=0)
-        ax1.text(0.95, 1.05, r'R = {:4.2f} au, $\theta$ = {:4.2f}, V$_C$ ~ {:4.2f} km/s'.format(rvals[iy,ix]*160.0,tvals[iy,ix]*180./np.pi, vmod[iy,ix]*1e-3), ha='right', va='top', transform=ax1.transAxes, color="k",fontsize=13)
-        ax2 = fig.add_subplot(grdspec[1])
-        im=ax2.imshow(vmod*1e-3,origin='lower',vmax=3,vmin=-3,cmap='jet')
-        ax2.scatter(ix,iy,c='m')
-        #ax2.text(0.75, 1.05, 'V$_{cen}$ ~ '+str(v_los[iy,ix]), ha='right', va='top', transform=ax2.transAxes, color="k",fontsize=13)
-        ax2.margins(x=-0.4,y=-0.4)
-        cbar=plt.colorbar(im, shrink=0.9)
-        plt.savefig(dirName+'RULup_'+mole+'_['+str(ix)+','+str(iy)+']_model_spec.pdf', bbox_inches='tight', pad_inches=0.1)
-        #plt.show()
-        plt.close()
+    if len(del_x) <= 100:
+        num_mod = 1
+    elif len(del_x) > 100 and len(del_x) <= 300:
+        num_mod = 3
+    elif len(del_x) > 300 and len(del_x) <= 500:
+        num_mod = 5
+    elif len(del_x) > 500 and len(del_x) <= 1000:
+        num_mod = 10
+    elif len(del_x) > 1000 and len(del_x) <= 3000:
+        num_mod = 20
+    elif len(del_x) > 3000 and len(del_x) <= 5000:
+        num_mod = 40
+    elif len(del_x) > 5000 and len(del_x) <= 10000:
+        num_mod = 50
+    elif len(del_x) > 10000 and len(del_x) <= 100000:
+        num_mod = 100
+    else:
+        num_mod = 1000
+    for i in range(len(del_x)):
+        if (i % num_mod) == 0:
+            ix = del_x[i];  iy=del_y[i]
+            spec = cube.data[:,iy,ix]
+            #shifted_spec = interp1d(x1-vmod[iy,ix]*1e-3,spec,bounds_error=False)(x1)
+            spec_wind = cube_wind.data[:,iy,ix]
+            #shifted_wind = interp1d(x1-vmod[iy,ix]*1e-3,spec_wind,bounds_error=False)(x1)
+            spec_obs = cube_obs.data[:,iy,ix]
+            fig = plt.figure(figsize=(12,5))
+            grdspec = gridspec.GridSpec(ncols=2, nrows=1, figure=fig)
+            ax1 = fig.add_subplot(grdspec[0])
+            ax1.set_xlim(-6,6)
+            ax1.set_xlabel('Vel [km/s]')
+            ax1.set_ylabel('I$_{model}$ [Jy/beam]')
+            ax1.plot(x1,spec,'r',label='Wind X')
+            #ax1.plot(x1,shifted_spec,'r--')
+            if double == 'F': ax1.plot(x1,Gaussian(x1,a[i],b[i],c[i],d[i]),'c-.')
+            if double == 'T': ax1.plot(x1,Double(x1,a[i],b[i],c[i],a2[i],d[i]),'c-.')
+            ax1.plot(x1,spec_wind,'b',label='Wind O')
+            #ax1.plot(x1,shifted_wind,'b--')
+            if double == 'F': ax1.plot(x1,Gaussian(x1,aw[i],bw[i],cw[i],dw[i]),'m-.')
+            if double == 'T': ax1.plot(x1,Double(x1,aw[i],bw[i],cw[i],aw2[i],dw[i]),'m-.')
+            ax1.axvline(x=vmod[iy,ix]*1e-3,lw=0.8,ls='--',color='g')
+            ax1.axvline(x=0.0,lw=0.8,ls='--',color='k')
+            ax3 = ax1.twinx()
+            ax3.set_xlim(-6,6)
+            ax3.set_ylabel('I$_{obs}$ [Jy/beam]')
+            ax3.plot(vel_obs,spec_obs,'k--',label='Obs',lw=0.3)
+            if bmaj == 'bmaj51':
+                if double == 'F': ax3.plot(vel_obs,Gaussian(vel_obs,ao[i],bo[i],co[i],do[i]),'k-.', lw=0.5)
+                if double == 'T': ax3.plot(vel_obs,Double(vel_obs,ao[i],bo[i],co[i],ao2[i],do[i]),'k-.', lw=0.5)
+            ax1.legend(prop={'size':12},loc=0)
+            ax1.text(0.95, 1.05, r'R = {:4.2f} au, $\theta$ = {:4.2f}, V$_C$ ~ {:4.2f} km/s'.format(rvals[iy,ix]*160.0,tvals[iy,ix]*180./np.pi, vmod[iy,ix]*1e-3), ha='right', va='top', transform=ax1.transAxes, color="k",fontsize=13)
+            ax2 = fig.add_subplot(grdspec[1])
+            im=ax2.imshow(vmod*1e-3,origin='lower',vmax=3,vmin=-3,cmap='jet')
+            ax2.scatter(ix,iy,c='m')
+            #ax2.text(0.75, 1.05, 'V$_{cen}$ ~ '+str(v_los[iy,ix]), ha='right', va='top', transform=ax2.transAxes, color="k",fontsize=13)
+            ax2.margins(x=-0.4,y=-0.4)
+            cbar=plt.colorbar(im, shrink=0.9)
+            plt.savefig(dirName+'RULup_'+mole+'_['+str(ix)+','+str(iy)+']_model_spec.pdf', bbox_inches='tight', pad_inches=0.1)
+            #plt.show()
+            plt.close()
 
 
 # =======================================================================================
