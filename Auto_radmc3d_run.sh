@@ -157,6 +157,15 @@ mole2="CN_3-2"
 tname1="fiducial_wind_all"
 tname2="fiducial_wind_rot"
 python cube_subtract.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj51" -tname1 $tname1 -tname2 $tname2
+python cube_subtract.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj5" -tname1 $tname1 -tname2 $tname2
+
+#--------------------------------------------------------------------------------------------
+# Ploting Moment maps of the observation
+python plot_moments_obs.py -mole "CN_3-2" -rms 5.5e-3 -cut 3.0
+python plot_moments_obs.py -mole "13CO_3-2" -rms 6.5e-3 -cut 3.0
+python plot_moments_obs.py -mole "13CO_2-1" -rms 3.0e-3 -cut 3.0
+python plot_moments_obs.py -mole "C18O_3-2" -rms 6.0e-3 -cut 3.0
+python plot_moments_obs.py -mole "C18O_2-1" -rms 2.2e-3 -cut 3.0
 
 '''
 mole="CN_3-2"
