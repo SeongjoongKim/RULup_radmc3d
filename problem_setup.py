@@ -100,22 +100,22 @@ hp_biggr = hp*settfact
 hpr_biggr= hpr*settfact
 
 # Set the inner edge conditions
-r_inedge = 0.1*au; t_inedge = t0*(r_inedge/r0)**pltt
-zb_inedge = 4.0*np.sqrt(kb*t_inedge/(2.3*mp))/np.sqrt(GG*mstar/r_inedge**3) - 0.1*au
+r_inedge = a*au; t_inedge = t0*(r_inedge/r0)**pltt
+zb_inedge = 4.0*np.sqrt(kb*t_inedge/(2.3*mp))/np.sqrt(GG*mstar/r_inedge**3) - a*au
 
 # Make the density model ----------------------------------
 sigmag = np.zeros_like(rs)
 sigmad = np.zeros_like(rs)
 for i in range(nr):
     for j in range(ntheta):
-        if rs[i,j,0]>=1*au:
+        if rs[i,j,0]>=b*au:
             sigmag[i,j,0]   = sigmag0*(rs[i,j,0]/rg0/au)**plsigg #  power-law function
             sigmad[i,j,0]   = sigmad0*(rs[i,j,0]/rd0/au)**plsig*np.exp(-(rs[i,j,0]/rde0/au)**2.0) #  power-law function
         else:
             sigmag[i,j,0]   = sigmag0*(1.0-(rs[i,j,0]/a/au))*(1.0-(b/a))**(-1) #  power-law function
             sigmad[i,j,0]   = sigmad0*(1.0-(rs[i,j,0]/a/au))*(1.0-(b/a))**(-1) #  power-law function
-sigmag[np.where(rs<0.1*au)] = 0.
-sigmad[np.where(rs<0.1*au)] = 0.
+sigmag[np.where(rs<a*au)] = 0.
+sigmad[np.where(rs<a*au)] = 0.
 if args.wind == 'F':
     # Gas density
     #sigmag   = sigmag0*(rs/rg0/au)**plsigg #  power-law function
@@ -148,7 +148,7 @@ elif args.wind == 'T':
                     vp[i,j,0] = 0.
                 else:
                     R0 = calculate_R0(rs[i,j,0],zs[i,j,0],t0,r0,pltt,mstar)   #z0[i,j,0]-zs[i,j,0]+rs[i,j,0]
-                    if R0<1*au:
+                    if R0<b*au:
                         sigmag_R0 = sigmag0*(1.0-(R0/a/au))*(1.0-(b/a))**(-1)
                     else:
                         sigmag_R0 = sigmag0*(R0/rg0/au)**plsigg
