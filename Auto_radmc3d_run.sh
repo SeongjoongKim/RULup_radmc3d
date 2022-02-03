@@ -161,11 +161,17 @@ python cube_subtract.py -mole1 $mole1 -mole2 $mole2 -bmaj "bmaj5" -tname1 $tname
 
 #--------------------------------------------------------------------------------------------
 # Ploting Moment maps of the observation
-python plot_moments_obs.py -mole "CN_3-2" -rms 5.5e-3 -cut 3.0
-python plot_moments_obs.py -mole "13CO_3-2" -rms 6.5e-3 -cut 3.0
-python plot_moments_obs.py -mole "13CO_2-1" -rms 3.0e-3 -cut 3.0
+python plot_moments_obs.py -mole "CN_3-2" -rms 5.5e-3 -cut 5.0
+python plot_moments_obs.py -mole "13CO_3-2" -rms 6.5e-3 -cut 4.0
+python plot_moments_obs.py -mole "13CO_2-1" -rms 3.0e-3 -cut 4.0
 python plot_moments_obs.py -mole "C18O_3-2" -rms 6.0e-3 -cut 3.0
-python plot_moments_obs.py -mole "C18O_2-1" -rms 2.2e-3 -cut 3.0
+python plot_moments_obs.py -mole "C18O_2-1" -rms 2.2e-3 -cut 4.0
+
+python plot_moments_obs_sub.py -mole "CN_3-2" -rms 5.5e-3 -cut 5.0 -tname "fiducial_wind_all"
+python plot_moments_obs_sub.py -mole "13CO_3-2" -rms 6.5e-3 -cut 4.0 -tname "fiducial_wind_all"
+python plot_moments_obs_sub.py -mole "13CO_2-1" -rms 3.0e-3 -cut 4.0 -tname "fiducial_wind_all"
+python plot_moments_obs_sub.py -mole "C18O_3-2" -rms 6.0e-3 -cut 3.0 -tname "fiducial_wind_all"
+python plot_moments_obs_sub.py -mole "C18O_2-1" -rms 2.2e-3 -cut 4.0 -tname "fiducial_wind_all"
 
 '''
 mole="CN_3-2"

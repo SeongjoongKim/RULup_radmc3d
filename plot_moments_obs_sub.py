@@ -65,11 +65,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-mole', default='None', type=str, help='The molecular line name. Default is None.')
 parser.add_argument('-rms', default=1e-3, type=float, help='The 1 sigma rms level. Default is 1e-3.')
 parser.add_argument('-cut', default=3.0, type=float, help='Sigma cut for M1 and M2 calculation. Default is 3.')
+parser.add_argument('-tname', default='fiducial', type=str, help='Test name. Default is fiducial.')
 args = parser.parse_args()
 
 mole = args.mole
 RMS = args.rms
 sig_cut = args.cut
+tname = args.tname
 
 # =======================================================================================
 # Disk parameters & radii setup
@@ -124,6 +126,36 @@ M0, dM0 = collapse_zeroth(velax, data[0,:,:,:], 0, 0, nv)
 M1, dM1 = collapse_first(velax, data[0,:,:,:]-data_c, RMS, sig_cut, 0, nv)
 M2, dM2 = collapse_second(velax, data[0,:,:,:]-data_c, RMS, sig_cut, 0, nv)
 
+# =======================================================================================
+# wind model
+# =======================================================================================
+fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
+if len(tname.split('_')) == 1:
+    tname_wind = tname+'_wind'
+else:
+    tname_wind = tname #tname.split('_')[0]+'_wind_'+tname.split('_')[1]
+fitsname = 'RULup_'+mole+'_'+tname_wind+'_bmaj51.fits'  #
+hduw = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
+dataw = hduw.data#[0,0,:,:]      # Save the data part
+nxw = hduw.header['NAXIS1']; nyw = hduw.header['NAXIS2']; nvw = hduw.header['NAXIS3']  # Set up axis lengths
+#if len(data.shape) == 3: data = data.reshape(-1,nv,ny,nx)    # Match the data shape to (1,nv, ny, nx)
+#data = np.swapaxes(data, 0, 2); data = np.swapaxes(data, 1, 2) # reshape the data in (nx,ny,nv,1)
+#print(data.max(),data.min())
+dvw = hduw.header['CDELT3'] ; v_refw = hduw.header['CRVAL3']  # delta_V in km/s
+velaxw = np.arange(nvw)*dvw + v_refw
+# Set continuum level
+dataw_c = np.zeros((ny,nx))
+for i in range(10):
+    dataw_c += dataw[i,:,:]
+dataw_c /= 10.
+# Moment map calculations
+M0w, dM0w = collapse_zeroth(velaxw, dataw, 0, 0, nvw)
+M1w, dM1w = collapse_first(velaxw, dataw-dataw_c, 1e-6, 3, 0, nvw)
+M2w, dM2w = collapse_second(velaxw, dataw-dataw_c, 1e-6, 3, 0, nvw)
+
+del_M1 = M1 - M1w - 4.5
+del_M2 = M2 - M2w
+
 # Set additional contours & Beam size
 wcs = WCS(hdu.header).slice([nx,ny])                         # calculate RA, Dec
 bmaj=hdu.header['BMAJ']; bmin=hdu.header['BMIN']; bpa=hdu.header['BPA'] # Read beam parameter
@@ -135,7 +167,7 @@ ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), a
 # Moment 1 map -----------------------------------------------
 fig=plt.figure(num=None, figsize=(8,6), dpi=100, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(projection=wcs)
-im=ax.imshow(M0,origin='lower',vmax=M0.max(),vmin=M0.min(),cmap="gist_heat")
+im=ax.imshow(del_M1,origin='lower',vmax=1.0,vmin=-0.5,cmap="jet")
 ax.set_xlabel('RA',fontsize=15)
 ax.set_ylabel('Dec',fontsize=15)
 #ax.text(0.95, 0.95, freq[i], ha='right', va='top', transform=ax.transAxes, color="w",fontsize=15)
@@ -146,28 +178,7 @@ ax.add_patch(ring)
 #ax.margins(x=-0.375,y=-0.375)
 cbar=plt.colorbar(im, shrink=0.9)
 cbar.set_label(r'$\mathrm{km\ s^{-1}}$', size=10)
-plt.savefig('./moments_maps/RULup_'+mole+'_Observation_M0.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
-#plt.show()
-plt.clf()
-
-beam = Ellipse((50., 50.), bmaj*100, bmin*100, angle=90.+bpa, edgecolor='white', facecolor='black')
-disk = Ellipse((250,250), 240./150.*100, 240./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='white', facecolor='none',ls='--')  # Keplerian disk
-ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='black', facecolor='none',ls='--')   # Outer envelope boundary
-# Moment 1 map -----------------------------------------------
-fig=plt.figure(num=None, figsize=(8,6), dpi=100, facecolor='w', edgecolor='k')
-ax = fig.add_subplot(projection=wcs)
-im=ax.imshow(M1,origin='lower',vmax=5.5,vmin=3.5,cmap="jet")
-ax.set_xlabel('RA',fontsize=15)
-ax.set_ylabel('Dec',fontsize=15)
-#ax.text(0.95, 0.95, freq[i], ha='right', va='top', transform=ax.transAxes, color="w",fontsize=15)
-ax.tick_params(axis='both',which='both',length=4,width=1,labelsize=12,direction='in',color='w')
-ax.add_patch(beam)
-ax.add_patch(disk)
-ax.add_patch(ring)
-#ax.margins(x=-0.375,y=-0.375)
-cbar=plt.colorbar(im, shrink=0.9)
-cbar.set_label(r'$\mathrm{km\ s^{-1}}$', size=10)
-plt.savefig('./moments_maps/RULup_'+mole+'_Observation_{:3.1f}cut_M1.pdf'.format(sig_cut), bbox_inches='tight', pad_inches=0.1,dpi=100)
+plt.savefig('./moments_maps/RULup_'+mole+'_Obs-fiducial_wind_all_M1.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
 #plt.show()
 plt.clf()
 
@@ -179,7 +190,7 @@ ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), a
 # Moment 2 map -----------------------------------------------
 fig=plt.figure(num=None, figsize=(8,6), dpi=100, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(projection=wcs)
-im=ax.imshow(M2,origin='lower',vmax=1.5,vmin=0.0,cmap="gist_heat")
+im=ax.imshow(del_M2,origin='lower',vmax=0.5,vmin=-0.5,cmap="jet")
 ax.set_xlabel('RA',fontsize=15)
 ax.set_ylabel('Dec',fontsize=15)
 #ax.text(0.95, 0.95, freq[i], ha='right', va='top', transform=ax.transAxes, color="w",fontsize=15)
@@ -190,37 +201,7 @@ ax.add_patch(ring)
 #ax.margins(x=-0.375,y=-0.375)
 cbar=plt.colorbar(im, shrink=0.9)
 cbar.set_label(r'$\mathrm{(km\ s^{-1})^{2}}$', size=10)
-plt.savefig('./moments_maps/RULup_'+mole+'_Observation_{:3.1f}cut_M2.pdf'.format(sig_cut), bbox_inches='tight', pad_inches=0.1,dpi=100)
+plt.savefig('./moments_maps/RULup_'+mole+'_Observation_Obs-fiducial_wind_all_M2.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
 #plt.show()
 plt.clf()
 
-# =======================================================================================
-# M2 azimuthal average profiles
-# =======================================================================================
-# Radius range set
-r_min = 0.0;  r_max = 160.0   # in au unit
-dr = 8.0; nr = int(r_max/dr)
-r_bin = np.arange(r_min,r_max+dr,dr)
-rc = (r_bin[1:nr+1] + r_bin[0:nr])*0.5
-d_pc = 160.0 # Distant of the source
-outname = './moments_maps/RULup_'+mole+'_Observation_{:3.1f}cut_M2_aver_radial.dat'.format(sig_cut)
-# M2 azimuthal average profile
-M2_aver = np.zeros_like(rc)
-cube = imagecube(fdir + fitsname)
-rvals, tvals, _ = cube.disk_coords(x0=dxc,y0=dyc,inc=inc,PA=DPA,z0=z0,psi=psi,z1=z1,phi=phi)
-r_au = rvals * d_pc
-for j in range(nr):
-    r_mask = np.logical_and(r_au >= r_bin[j], r_au <= r_bin[j+1])
-    PA_mask = np.logical_and(tvals >= PA_min*np.pi/180., tvals <= PA_max*np.pi/180.)
-    #v_mask = np.logical_and(vmodel >= -5.0e3, vmodel <= 5.0e3)
-    mask = r_mask*PA_mask#*v_mask
-    n_sample = np.sum(mask) ; idx,idy = np.where(mask >0)
-    M2_sample = np.zeros(n_sample)
-    for k in range(len(idx)):
-        M2_sample[k] = M2[idx[k],idy[k]]
-    M2_aver[j] = M2_sample.mean()
-outfile=open(outname, 'w+')
-data=np.array((rc,M2_aver))
-data=data.T
-np.savetxt(outfile, data, fmt='%13.8f', delimiter='  ',newline='\n')
-outfile.close()
