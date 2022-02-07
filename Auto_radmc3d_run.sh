@@ -6,7 +6,7 @@ name=fiducial_wind
 
 #--------------------------------------------------------------------------------------------
 # Setup the input files for temperature calculation
-python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "T" -wind "T" -scat 0 # Set 2 grain model for calculating Tdust & Tgas
 # Calculate the dust temperature
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
@@ -20,7 +20,7 @@ cp dust_temperature.dat "Tdust_"$name".dat"      # Copy T file
 # Setup the input files for imaging
 python make_gas_temperature.py -file $name      # Separate Tdust & Tgas
 python make_turb_file.py -file $name
-python problem_setup.py -calmode "I" -wind "T"  # Set large grain only for imaging
+python problem_setup.py -calmode "I" -wind "T" -scat 0 # Set large grain only for imaging
 #'''
 #--------------------------------------------------------------------------------------------
 # Continuum
@@ -83,10 +83,10 @@ python FITS_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
 
 #'''
 #name=fiducial_wind_rot
-python problem_setup.py -calmode "T" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "T" -wind "T" -scat 0 # Set 2 grain model for calculating Tdust & Tgas
 python plot_disk_rz.py -file $name               # Plot the disk temperature and density distribution in r-z plane
 
-python problem_setup.py -calmode "I" -wind "T"  # Set 2 grain model for calculating Tdust & Tgas
+python problem_setup.py -calmode "I" -wind "T" -scat 0 # Set 2 grain model for calculating Tdust & Tgas
 # Plotting image maps
 python plot_maps.py -file $name"_bmaj51" -dist 160.0
 python plot_maps.py -file $name"_bmaj5" -dist 160.0

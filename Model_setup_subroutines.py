@@ -215,16 +215,18 @@ def write_line_all(LTE=True):
         return
 
 
-def write_opacity(ngrain):
+def write_opacity(ngrain,scat):
     if ngrain == 1:
         # Dust opacity control file  ----------------------------------
         with open('dustopac.inp','w+') as f:
             f.write('2               Format number of this file\n')
             f.write('1               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 0: f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 1: f.write('10               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
             f.write('0               0=Thermal grain\n')
-            f.write('amax1mm_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 0: f.write('amax1mm_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 1: f.write('DSHARP_amax10000.0um        Extension of name of dustkapscatmat_***.inp file\n')
             #f.write('dsharp_wav8.70e+02mic_amax1.50e+02mic        Extension of name of dustkappa_***.inp file\n')
             #f.write('dsharp1000um        Extension of name of dustkapscatmat_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
@@ -235,14 +237,18 @@ def write_opacity(ngrain):
             f.write('2               Format number of this file\n')
             f.write('2               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('1               Way in which this dust species is read\n')
+            if scat == 0: f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 1: f.write('10               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
             f.write('0               0=Thermal grain\n')
-            f.write('amax10um_kaponly       Extension of name of dustkappa_***.inp file\n')
+            if scat == 0: f.write('amax10um_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 1: f.write('DSHARP_amax10.0um        Extension of name of dustkapscatmat_***.inp file\n')
             #f.write('dsharp10um        Extension of name of dustkapscatmat_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
-            f.write('1               Way in which this dust species is read\n')
+            if scat == 0: f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 1: f.write('10               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
             f.write('0               0=Thermal grain\n')
-            f.write('amax1mm_kaponly      Extension of name of dustkappa_***.inp file\n')
+            if scat == 0: f.write('amax1mm_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 1: f.write('DSHARP_amax10000.0um        Extension of name of dustkapscatmat_***.inp file\n')
             #f.write('dsharp1000um        Extension of name of dustkapscatmat_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
         return
@@ -252,9 +258,11 @@ def write_opacity(ngrain):
             f.write('2               Format number of this file\n')
             f.write('1               Nr of dust species\n')
             f.write('============================================================================\n')
-            f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 0: f.write('1               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
+            if scat == 1: f.write('10               Way in which this dust species is read\n')    # 1 = kappa_*.inp  10 = kapscatmat_*.inp
             f.write('0               0=Thermal grain\n')
-            f.write('amax10um_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 0: f.write('amax10um_kaponly        Extension of name of dustkappa_***.inp file\n')
+            if scat == 1: f.write('DSHARP_amax10.0um        Extension of name of dustkapscatmat_***.inp file\n')
             #f.write('dsharp_wav8.70e+02mic_amax1.50e+02mic        Extension of name of dustkappa_***.inp file\n')
             #f.write('dsharp1000um        Extension of name of dustkapscatmat_***.inp file\n')
             f.write('----------------------------------------------------------------------------\n')
@@ -280,12 +288,13 @@ def write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi):
     return
     
 
-def write_radmc_input(nphot,ngrain,LTE=True):
+def write_radmc_input(nphot,ngrain,scat,LTE=True):
     if ngrain == 1:
         # Write the radmc3d.inp control file   ----------------------------------
         with open('radmc3d.inp','w+') as f:
             f.write('nphot = %d\n'%(nphot))
-            f.write('scattering_mode_max = 0\n')
+            if scat == 0: f.write('scattering_mode_max = 0\n')
+            if scat == 1: f.write('scattering_mode_max = 5\n')
             f.write('iranfreqmode = 1\n')
             f.write('tgas_eq_tdust = 1\n')       # Use the dust temperature of dust species 1 as gas temperature
             #f.write('rto_style = 3\n')   # Set binary T out
@@ -299,7 +308,8 @@ def write_radmc_input(nphot,ngrain,LTE=True):
         # Write the radmc3d.inp control file   ----------------------------------
         with open('radmc3d.inp','w+') as f:
             f.write('nphot = %d\n'%(nphot))
-            f.write('scattering_mode_max = 0\n')
+            if scat == 0: f.write('scattering_mode_max = 0\n')
+            if scat == 1: f.write('scattering_mode_max = 5\n')
             f.write('iranfreqmode = 1\n')
             #f.write('tgas_eq_tdust = 1\n')       # Use the dust temperature of dust species 1 as gas temperature
             #f.write('rto_style = 3\n')    # Set binary T out

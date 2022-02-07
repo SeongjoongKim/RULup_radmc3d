@@ -22,6 +22,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-calmode', default='I', type=str, help='Calculation mode: T (temperature) or I (image)')
 parser.add_argument('-wind', default='F', type=str, help='If you want to include wind model, set this argument T. default is F (no wind).')
 parser.add_argument('-settle', default=0.1, type=float, help='dust settling degree (Hd/Hg). Please set between 0.1~1.0')
+parser.add_argument('-scat', default=0, type=int, help='dust scattering including. Off = 0 & On = 1. Default is 0')
 args = parser.parse_args()
 print(args)
 
@@ -194,10 +195,10 @@ write_ndens('p-h2',0.25*rhog,2.34,nr,ntheta,nphi)
 if args.calmode == 'I':
     # Writing the density input file
     write_density(rhod,rhog,nr,ntheta,nphi)
-    write_opacity(1)
+    write_opacity(1,args.scat)
 elif args.calmode == 'T':
     write_density_2grain(rhod,rhos,rhog,nr,ntheta,nphi)
-    write_opacity(2)
+    write_opacity(2,args.scat)
 else:
     raise ValueError("Unknown calmode")
 
@@ -216,5 +217,6 @@ write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
 if args.calmode == 'T':
     nphot    = 3000000   # for fiducial_wind, 1e6 due to the limit of cal. time
 elif args.calmode == 'I':
-    nphot    = 1000000   # < ---------------------------- nphot
-write_radmc_input(nphot,2,LTE=True)
+    if args.scat == 0: nphot         = 1000000   # < ---------------------------- nphot
+    if args.scat == 1: nphot_scat    = 1000000   # < ---------------------------- nphot
+write_radmc_input(nphot,2,args.scat,LTE=True)
