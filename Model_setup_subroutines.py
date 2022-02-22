@@ -292,9 +292,12 @@ def write_radmc_input(nphot,ngrain,scat,LTE=True):
     if ngrain == 1:
         # Write the radmc3d.inp control file   ----------------------------------
         with open('radmc3d.inp','w+') as f:
-            f.write('nphot = %d\n'%(nphot))
-            if scat == 0: f.write('scattering_mode_max = 0\n')
-            if scat == 1: f.write('scattering_mode_max = 5\n')
+            if scat == 0:
+                f.write('nphot = %d\n'%(nphot))
+                f.write('scattering_mode_max = 0\n')
+            if scat == 1:
+                f.write('nphot_scat = %d\n'%(nphot))
+                f.write('scattering_mode_max = 5\n')
             f.write('iranfreqmode = 1\n')
             f.write('tgas_eq_tdust = 1\n')       # Use the dust temperature of dust species 1 as gas temperature
             #f.write('rto_style = 3\n')   # Set binary T out
@@ -307,9 +310,12 @@ def write_radmc_input(nphot,ngrain,scat,LTE=True):
     if ngrain == 2:
         # Write the radmc3d.inp control file   ----------------------------------
         with open('radmc3d.inp','w+') as f:
-            f.write('nphot = %d\n'%(nphot))
-            if scat == 0: f.write('scattering_mode_max = 0\n')
-            if scat == 1: f.write('scattering_mode_max = 5\n')
+            if scat == 0:
+                f.write('nphot = %d\n'%(nphot))
+                f.write('scattering_mode_max = 0\n')
+            if scat == 1:
+                f.write('nphot_scat = %d\n'%(nphot))
+                f.write('scattering_mode_max = 5\n')
             f.write('iranfreqmode = 1\n')
             #f.write('tgas_eq_tdust = 1\n')       # Use the dust temperature of dust species 1 as gas temperature
             #f.write('rto_style = 3\n')    # Set binary T out
