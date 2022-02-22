@@ -207,8 +207,8 @@ vr       = np.zeros_like(rr)
 vtheta   = np.zeros_like(rr)
 vphi = np.sqrt(GG*mstar/rr)
 vturb    = 1e-3*vphi     # < ---------------------------- vturb
-vwind = (vp**-1 + vk_R0**-1)**-1
 if args.wind == 'T':
+    vwind = (vp**-1 + vk_R0**-1)**-1
     vr = (vwind*np.cos(45.*np.pi/180.))*np.cos(tt)
     vtheta = -(vwind*np.cos(45.*np.pi/180.))*np.sin(tt)
 write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
@@ -216,7 +216,11 @@ write_velocity(vr,vtheta,vphi,vturb,nr,ntheta,nphi)
 # Monte Carlo parameters ----------------------------------
 if args.calmode == 'T':
     nphot    = 3000000   # for fiducial_wind, 1e6 due to the limit of cal. time
+    write_radmc_input(nphot,2,args.scat,LTE=True)
 elif args.calmode == 'I':
-    if args.scat == 0: nphot         = 1000000   # < ---------------------------- nphot
-    if args.scat == 1: nphot_scat    = 1000000   # < ---------------------------- nphot
-write_radmc_input(nphot,2,args.scat,LTE=True)
+    if args.scat == 0:
+        nphot         = 1000000   # < ---------------------------- nphot
+        write_radmc_input(nphot,1,args.scat,LTE=True)
+    if args.scat == 1:
+        nphot_scat    = 1000000   # < ---------------------------- nphot
+        write_radmc_input(nphot_scat,1,args.scat,LTE=True)
