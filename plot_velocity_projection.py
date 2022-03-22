@@ -100,7 +100,7 @@ mstar, rstar, tstar = [ 0.63*ms, 2.42*rsun, 4073. ] #Stellar parameters. The lis
 inc = 25.0
 DPA = 149.0; PA_min = -180.0; PA_max = 180.0
 dxc = 0.00; dyc = 0.00
-z0 = 0.3; psi = 1.4; z1 = -0.0; phi = 1.0
+z0 = 0.5; psi = 1.0; z1 = -0.0; phi = 1.0
 #r_taper = 260.; q_taper = 1.0
 d_pc = 160.0 # Distant of the source
 
@@ -117,6 +117,8 @@ fitsname = mole+'_selfcal_wc_matched_cube500.fits'  #
 hdu = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
 datao = hdu.data#[0,0,:,:]      # Save the data part
 nx = hdu.header['NAXIS1']; ny = hdu.header['NAXIS2']; nv = hdu.header['NAXIS3']  # Set up axis lengths
+bmaj = hdu.header['BMAJ']*3.6e3; bmin = hdu.header['BMIN']*3.6e3; bpa = hdu.header['BPA']
+pixsize_x = abs(hdu.header['CDELT1']*3.6e3); pixsize_y = abs(hdu.header['CDELT2']*3.6e3)
 if hdu.header['CTYPE3'] == 'FREQ':
     f0=hdu.header['CRVAL3']*1e-9
     df=hdu.header['CDELT3']*1e-9
@@ -337,8 +339,8 @@ qq = np.meshgrid(x,y)
 x_sky,y_sky = np.ravel(qq[0]), np.ravel(qq[1])
 x_disk, y_disk = 2.*x_sky, 2.*y_sky
 r_disk = np.hypot(x_disk,y_disk)
-#z_disk = r_disk * ( z0 * np.power(r_disk/d_pc, psi) + z1 * np.power(r_disk/d_pc, phi) ) # z(r) = z0(r/1'')**psi - z1(r/1'')**phi
-z_disk = r_disk*0.35*(1.+(r_disk/290.)**1.4)*np.exp(-np.power(r_disk / 750., 1.0)) #zcn = rs * 0.35* (1+ (rs/290./au )**1.4 )
+#z_disk = ( z0 * np.power(r_disk/d_pc, psi) + z1 * np.power(r_disk/d_pc, phi) )*np.exp(-np.power(r_disk / 750., 1.0)) *r_disk # z(r) = z0(r/1'')**psi - z1(r/1'')**phi
+z_disk = r_disk*0.35*(1.+(r_disk/290.)**1.4)*np.exp(-np.power(r_disk / 300., 2.0)) #zcn = rs * 0.35* (1+ (rs/290./au )**1.4 )
 
 # Rotation velocity vector
 vkep_disk = np.sqrt(GG*mstar/np.hypot(r_disk,z_disk)/au)
@@ -366,8 +368,13 @@ vkep = vector_proj(vkx_disk, vky_disk, vkz_disk, uz_sky)
 #l, xx, yy, zz, rr
 
 z_prj = griddata((xx,yy),z_disk,(x_sky,y_sky),method='linear')
-vw = griddata((xx,yy),vz,(x_sky,y_sky),method='linear')
-vk = griddata((xx,yy),vkep,(x_sky,y_sky),method='linear')
+vw = griddata((xx,yy),vz,(x_sky,y_sky),method='linear'); vw[np.isnan(vw)] = 0.0
+vk = griddata((xx,yy),vkep,(x_sky,y_sky),method='linear'); vk[np.isnan(vk)] = 0.0
+
+# Convolution of V field by a beam size
+gaussian_2D_kernel = Gaussian2DKernel(bmaj/pixsize_x/np.sqrt(8*np.log(2)),bmin/pixsize_y/np.sqrt(8*np.log(2)),bpa/180.*np.pi,x_size=151, y_size=151)
+# Convolve the image through the 2D beam
+vw_conv = convolve(vw.reshape((nx,ny)),gaussian_2D_kernel,boundary='extend',normalize_kernel=True)
 
 # Plotting
 wcs = WCS(hdu.header).slice([nx,ny])                         # calculate RA, Dec
@@ -379,7 +386,7 @@ disk = Ellipse((250,250), 240./150.*100, 240./150.*100*np.cos(inc*np.pi/180.), a
 ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='cyan', facecolor='none',ls='--')   # Outer envelope boundary
 fig=plt.figure(num=None, figsize=(8,6), dpi=100, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(projection=wcs)
-im=ax.imshow(vw.reshape((nx,ny)),origin='lower',cmap="jet",vmax=0.5,vmin=0.0)
+im=ax.imshow(vw_conv,origin='lower',cmap="jet",vmax=0.5,vmin=0.0)
 #im=ax.imshow(vwind.reshape((nx,ny)),origin='lower',cmap="jet")
 #TT = ax.contour(z_prj.reshape((nx,ny)),[0.1,0.2,0.3,0.5,1.0],linestyles='solid',colors='gray')
 #plt.clabel(TT)
@@ -391,7 +398,7 @@ ax.add_patch(disk)
 ax.add_patch(ring)
 #ax.text(0.95, 0.95, freq[i], ha='right', va='top', transform=ax.transAxes, color="w",fontsize=15)
 ax.tick_params(axis='both',which='both',length=4,width=1,labelsize=12,direction='in',color='w')
-ax.margins(x=-0.25,y=-0.25)
+ax.margins(x=-0.2,y=-0.2)
 cbar=plt.colorbar(im, shrink=0.9)
 cbar.set_label(r'$\mathrm{(km\ s^{-1})^{2}}$', size=10)
 plt.savefig('./Flared_emitting_layer_vwind_vector.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)

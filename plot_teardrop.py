@@ -1,18 +1,18 @@
-from Model_setup_subroutines import *
-from matplotlib.colors import *
-import matplotlib.colors as colors
 import numpy as np
+from Model_setup_subroutines import *
+#from matplotlib.colors import *
+import matplotlib.colors as colors
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingArea, TextArea, VPacker)
 from astropy.io import fits
+from astropy.wcs import WCS
 from scipy.interpolate import interp1d, griddata
 from scipy.stats import binned_statistic
 from astropy.convolution import Gaussian2DKernel, convolve
 from matplotlib.patches import Ellipse, Rectangle, Circle
-from astropy.wcs import WCS
-from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingArea, TextArea, VPacker)#from Model_setup_subroutines import *
+import argparse, os
+from disksurf import observation
 from gofish import imagecube
-import argparse
-import os
 
 # Some natural constants  ----------------------------------
 au  = 1.49598e13     # Astronomical Unit       [cm]
@@ -57,8 +57,7 @@ def rotated_axis(inc, PA):
 
 
 def vector_proj(x,y,z,u_sky):
-    xx = x*u_sky[0] + y*u_sky[1] + z*u_sky[2]
-    return xx
+    return x*u_sky[0] + y*u_sky[1] + z*u_sky[2]
     
 
 def get_mask(r,t,rin,rout,PAmin,PAmax):
@@ -164,6 +163,7 @@ if hdu.header['NAXIS'] == 3: data = hdu.data#[0,:,:,:]      # Save the data part
 # Axes rotation from disk plane to sky plane
 # inclination: +z moves to +y axis
 # DPA: +x moves to +y axis
+# The disk inclined and rotated inversely. +y axis becomes near side & disk major axis rotates PA toward -y axis.
 ux_sky, uy_sky, uz_sky = rotated_axis(inc, DPA)
 print(ux_sky, uy_sky, uz_sky)
 # Axes rotation from sky plane to disk plane
@@ -297,6 +297,9 @@ plt.savefig('./teardrop/'+mole+'_teardrop_vector.pdf', bbox_inches='tight', pad_
 plt.clf()
 #'''
 '''
+# =======================================================================================
+# Testing GoFish teardrop plot
+# =======================================================================================
 cube = imagecube(fdir+fitsname)
 r_asc, velax, spectra, scatter  = cube.radial_spectra(inc=inc,PA=DPA,mstar=0.64,dist=160.0,dr=0.05,z0=z0,psi=psi,z1=z1,phi=phi)
 plt.figure(figsize=(10,6))
@@ -311,3 +314,91 @@ cbar = plt.colorbar() #ticks=[1e4,1e5,1e6,1e7])
 cbar.set_label(r'$Jy\ beam^{-1}$', size=10)
 plt.savefig('./'+mole+'_teardrop.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
 '''
+'''
+# =======================================================================================
+# Finding emitting surface by disksurf (Teague et al. 2021; Pinte et al. 2018)
+# =======================================================================================
+mole = '12CO_2-1'
+fdir = '/Users/kimsj/Documents/RU_Lup/Fin_fits/'
+fitsname = mole+'_selfcal_matched_cube500.fits'
+hdu = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
+nx = hdu.header['NAXIS1']; ny = hdu.header['NAXIS2']; nv = hdu.header['NAXIS3']  # Set up axis lengths
+bmaj = hdu.header['BMAJ']*3.6e3; bmin = hdu.header['BMIN']*3.6e3; bpa = hdu.header['BPA']
+pixsize_x = abs(hdu.header['CDELT1']*3.6e3); pixsize_y = abs(hdu.header['CDELT2']*3.6e3)
+cube = observation(fdir+fitsname)
+chans = (50,105) # (50,105) for 2-1 lines / (30,70) for C18O 3-2 / (80,150) for 13CO 3-2 & CN 3-2
+#cube.plot_channels(chans=chans)
+surface = cube.get_emission_surface(inc=inc,PA=DPA,r_min=0.1,r_max=1.5,chans=chans,smooth=0.5)
+rf_surf, zf_surf = [surface.r(side='front'), surface.z(side='front')]
+rb_surf, zb_surf = [surface.r(side='back'), surface.z(side='back')]
+plt.figure(figsize=(10,6))
+plt.scatter(rf_surf, zf_surf,marker='o',color='blue')
+plt.scatter(rb_surf, zb_surf,marker='o',color='red')
+plt.xlim(0,1.5)
+plt.ylim(-0.4,0.4)
+plt.xlabel('R (arcsec)', fontsize=15)
+plt.ylabel('Z (arcsec)',fontsize=15)
+#plt.legend(prop={'size':15},loc=1)
+plt.tick_params(which='both',length=6,width=1.5,direction='in')
+#surface.plot_surface()
+plt.savefig('./teardrop/'+mole+'_obs_disksurf_zsurface.pdf',dpi=100,bbox_inches='tight')
+plt.clf()
+
+chans = (70,110) # (70,105) #
+cube.plot_peaks(surface=surface)
+plt.savefig('./teardrop/'+mole+'_obs_disksurf_peaks.pdf',dpi=100,bbox_inches='tight')
+'''
+'''
+# =======================================================================================
+# Finding emitting surface by RADMC-3D tausurf
+# =======================================================================================
+mole = 'CN_3-2'
+fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/tau1_surf_fits/'
+fitsname = 'RULup_'+mole+'_fiducial_wind_all_bmaj51_tau1.fits'
+hdu = fits.open(fdir+fitsname)[0]   # Read the fits file: header + data
+nx = hdu.header['NAXIS1']; ny = hdu.header['NAXIS2']; nv = hdu.header['NAXIS3']  # Set up axis lengths
+bmaj = hdu.header['BMAJ']*3.6e3; bmin = hdu.header['BMIN']*3.6e3; bpa = hdu.header['BPA']
+pixsize_x = abs(hdu.header['CDELT1']*3.6e3); pixsize_y = abs(hdu.header['CDELT2']*3.6e3)
+if hdu.header['NAXIS'] == 4: data = hdu.data[0,:,:,:]      # Save the data part
+if hdu.header['NAXIS'] == 3: data = hdu.data#[0,:,:,:]      # Save the data part
+# Find the z_peak of tau = 1 surface
+z_sky = np.zeros((nx,ny))
+for i in range(nx):
+    for j in range(ny):
+        z_sky[i,j]=data[:,j,i].max()/au/d_pc
+        if z_sky[i,j] == 0.0: z_sky[i,j] /= 0.0   # The 
+
+# The disk inclined and rotated inversely. +y axis becomes near side & disk major axis rotates PA toward -y axis.
+ux_sky, uy_sky, uz_sky = rotated_axis(inc, DPA)
+print(ux_sky, uy_sky, uz_sky)
+# Axes rotation from sky plane to disk plane
+ux_disk, uy_disk, uz_disk = np.linalg.inv(np.array((ux_sky,uy_sky,uz_sky)))
+print(ux_disk, uy_disk, uz_disk)
+x=np.arange(-nx/2.,nx/2.)*pixsize_x#*d_pc # in au
+y=np.arange(-ny/2.,ny/2.)*pixsize_y#*d_pc # in au
+qq = np.meshgrid(x,y)
+x_sky,y_sky = qq[0], qq[1]
+
+xx_disk = vector_proj(x_sky, y_sky, z_sky, ux_disk)
+yy_disk = vector_proj(x_sky, y_sky, z_sky, uy_disk)
+zz_disk = vector_proj(x_sky, y_sky, z_sky, uz_disk)
+zz_disk = np.where(np.isnan(zz_disk), 0.0, zz_disk)
+rr_disk = np.hypot(xx_disk,yy_disk)
+
+r = np.linspace(0.0,2.0,100)
+z0 = 0.45; psi = 1.25
+# Plotting the deprojected r-z points    
+plt.figure(figsize=(10,6))
+plt.scatter(rr_disk, zz_disk,marker='.',color='blue')
+plt.plot(r, z0*np.power(r,psi),'r--',label='{:4.2f} r^{:4.2f}'.format(z0,psi))
+plt.xlim(0,2.0)
+#plt.ylim(0.0,0.5)
+plt.xlabel('R (arcsec)', fontsize=15)
+plt.ylabel('Z (arcsec)',fontsize=15)
+plt.legend(prop={'size':15},loc=0)
+plt.tick_params(which='both',length=6,width=1.5,direction='in')
+plt.savefig('./teardrop/tausurf/'+mole+'_radmc3d_tausurf_zsurface.pdf',dpi=100,bbox_inches='tight')
+#plt.show()
+plt.clf()
+'''
+
