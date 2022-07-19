@@ -4,6 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-file', default='None', type=str, help='input test title')
+parser.add_argument('-Tw', default=0.1, type=float, help='input test title')
 args = parser.parse_args()
 
 # Read grid file
@@ -31,7 +32,7 @@ kb = 1.38e-16
 NA = 6.02e23
 mH = 1.0/NA
 #sigma=np.sqrt(2.*kb*temp_smlgr/mu/mH)
-vturb = 0.1*np.sqrt(2.*kb*temp_smlgr/mu/mH)
+vturb = Tw*np.sqrt(kb*temp_smlgr/mu/mH)  # local soundspeed * Tw
 
 # Write the dust and gas temperature input files
 with open('microturbulence.inp','w+') as f:

@@ -46,13 +46,13 @@ rin, rout, thetaup = [0.1, 300.0, np.pi*0.5-0.7] # inner radius & outer radius(c
 r0 = 10.0; pltt = -0.5 # The initial temperature profile at the midplane. T(r) = T0 (r/r0)^-pltt. You can modify the profile at lines 56-58.
 
 # Surface density parameters. Please see lines 74- -------------------------------------
-sigmag0, rg0, plsigg, rge0  = [1.5e3, 1.0, -1.0, 50.0] # Gas disk surface density profile. Sigma_g(r) = Sigmag0 (r/rg0)^plsiggm *exp(-r/rge0). You can modify the profile at lines .
-sigmad0, rd0, plsig, rde0 = [1.5e2, 1.0, -1.0, 50.0] # Dust disk surface density profile. Sigma_d(r) = Sigmad0 (r/rd0)^plsiggm *exp(-r/rde0). You can modify the profiel at lines .
-s_to_g_ratio = 1.0e-3  # Small grain to gas mass ratio. The default is set as 0.001
+sigmag0, rg0, plsigg, rge0  = [1.25e2, 1.0, -1.0, 50.0] # Gas disk surface density profile. Sigma_g(r) = Sigmag0 (r/rg0)^plsiggm *exp(-r/rge0). You can modify the profile at lines .
+sigmad0, rd0, plsig, rde0 = [3e1, 1.0, -1.0, 50.0] # Dust disk surface density profile. Sigma_d(r) = Sigmad0 (r/rd0)^plsiggm *exp(-r/rde0). You can modify the profiel at lines .
+s_to_g_ratio = 1.0e-2  # Small grain to gas mass ratio. The default is set as 0.001
 a=0.1; b=1.0 # Set the disk inner edge (0.1 au) and tapering radius (1 au)
 
 # Disk wind parameters.-------------------------------------
-beta_0, Cw, alpha_B = [1.e4, 1.0e-5, -2.0] # Set the beta0, Cw, and alpha_B values.
+beta_0, Cw, alpha_B = [1.e4, 3.0e-4, -2.0] # Set the beta0, Cw, and alpha_B values.
 
 # The photon number -------------------------------------
 # nphot is set at line 200. Please modify it there.

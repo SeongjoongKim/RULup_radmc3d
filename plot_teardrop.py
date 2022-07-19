@@ -117,6 +117,7 @@ parser.add_argument('-mole', default='None', type=str, help='The molecular line 
 parser.add_argument('-wc', default='F', type=str, help='If you want to include continuum, set this argument T. default is F (no continuum).')
 args = parser.parse_args()
 mole =  args.mole  # '13CO_3-2' #
+#mole = '12CO_2-1'
 
 # =======================================================================================
 # Disk parameters
@@ -125,7 +126,7 @@ mstar, rstar, tstar = [ 0.63*ms, 2.42*rsun, 4073. ] #Stellar parameters. The lis
 inc = 25.0
 DPA = 149.0; PA_min = -180.0; PA_max = 180.0
 dxc = 0.00; dyc = 0.00
-z0 = 0.3; psi = 1.4; z1 = -0.0; phi = 1.0
+z0 = 0.0; psi = 1.25; z1 = -0.0; phi = 1.0
 #r_taper = 260.; q_taper = 1.0
 d_pc = 160.0 # Distant of the source in pc
 vsys = 4.5   # System velocity in km/s
@@ -133,6 +134,8 @@ vsys = 4.5   # System velocity in km/s
 # =======================================================================================
 # Read observational data
 # =======================================================================================
+#fdir = '/Users/kimsj/Documents/RADMC-3D/radmc3d-2.0/RU_Lup_test/Automatics/Fin_script/fiducial_wind/'
+#fitsname = 'RULup_'+mole+'_fiducial_wind_all_bmaj51.fits'
 # Set fits file # =======================================================================
 fdir = '/Users/kimsj/Documents/RU_Lup/Fin_fits/'
 fitsname = mole+'_selfcal_wc_matched_cube500.fits'  #
@@ -180,7 +183,7 @@ x_sky,y_sky = np.ravel(qq[0]), np.ravel(qq[1])
 x_disk, y_disk = 2.*x_sky, 2.*y_sky
 r_disk = np.hypot(x_disk,y_disk)
 z_disk = ( z0 * np.power(r_disk, psi) + z1 * np.power(r_disk, phi) ) #*np.exp(-np.power(r_disk / 750., 1.0)) # z(r) = z0(r/1'')**psi - z1(r/1'')**phi
-# Rotation velocity vector in disk planet
+# Rotation velocity vector in disk plane
 #vkep_disk = np.sqrt(GG*mstar/np.hypot(r,z_disk)/au)*1e-5
 #vkep_disk[np.isnan(vkep_disk)] = 0.0
 #theta = np.arctan2(y_disk,x_disk)
@@ -203,11 +206,11 @@ z_sky = griddata((xx_sky,yy_sky),zz_sky,(x_sky,y_sky),method='linear')
 xx_disk = vector_proj(x_sky, y_sky, z_sky, ux_disk)
 yy_disk = vector_proj(x_sky, y_sky, z_sky, uy_disk)
 zz_disk = vector_proj(x_sky, y_sky, z_sky, uz_disk)
-# Rotation velocity vector in the deprojected disk planet # ==========================================
+# Rotation velocity vector in the deprojected disk plane # ==========================================
 rr_disk = np.hypot(xx_disk,yy_disk)
-vvkep_disk = 1e-5*np.sqrt(GG*mstar/np.hypot(rr_disk,zz_disk)/d_pc/au)  # Vkep = sqrt(G*Mstar/d)
-#vvkep_disk = GG*mstar*np.power(rr_disk*d_pc*au, 2.0)   # Vkep = sqrt(G*Mstar*r2/d3)
-#vvkep = np.sqrt( vvkep/np.power( np.hypot(rr_disk,zz_disk)*au*d_pc, 3.0) ) *1e-5 # Keplerian velocity in disk coordinates with km/s unit
+#vvkep_disk = 1e-5*np.sqrt(GG*mstar/np.hypot(rr_disk,zz_disk)/d_pc/au)  # Vkep = sqrt(G*Mstar/d)
+vvkep_disk = GG*mstar*np.power(rr_disk*d_pc*au, 2.0)   # Vkep = sqrt(G*Mstar*r2/d3)
+vvkep_disk = np.sqrt( vvkep_disk/np.power( np.hypot(rr_disk,zz_disk)*au*d_pc, 3.0) ) *1e-5 # Keplerian velocity in disk coordinates with km/s unit
 vvkep_disk = np.where(np.isfinite(vvkep_disk), vvkep_disk, 0.0)       # Check Nan and +/-inf and replace them to 0
 ttheta = np.arctan2(yy_disk,xx_disk)
 vvx_disk = vvkep_disk*np.sin(ttheta); vvy_disk = vvkep_disk*np.cos(ttheta); vvz_disk = np.zeros_like(vvx_disk)
@@ -218,29 +221,31 @@ vvz_sky = np.where(np.isfinite(vvz_sky), vvz_sky, 0.0)      # Check Nan and +/-i
 gaussian_2D_kernel = Gaussian2DKernel(bmaj/pixsize_x/np.sqrt(8*np.log(2)),bmin/pixsize_y/np.sqrt(8*np.log(2)),bpa/180.*np.pi,x_size=151, y_size=151)
 # Convolve the image through the 2D beam
 vmod = convolve(vvz_sky.reshape((nx,ny)),gaussian_2D_kernel,boundary='extend',normalize_kernel=True)
-'''
+#'''
 # Plotting the rotation field # =======================================================================
 wcs = WCS(hdu.header).slice([nx,ny])                         # calculate RA, Dec
-#disk = Ellipse((250,250), 240./150.*100, 240./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='white', facecolor='none',ls='--')  # Keplerian disk
-#ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='black', facecolor='none',ls='--')   # Outer envelope boundary
+disk = Ellipse((250,250), 240./150.*100, 240./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='white', facecolor='none',ls='--')  # Keplerian disk
+ring = Ellipse((250,250), 520./150.*100, 520./150.*100*np.cos(inc*np.pi/180.), angle=31., edgecolor='black', facecolor='none',ls='--')   # Outer envelope boundary
 fig=plt.figure(num=None, figsize=(8,6), dpi=100, facecolor='w', edgecolor='k')
 ax = fig.add_subplot(projection=wcs)
 im=ax.imshow(vmod,origin='lower',cmap="jet",vmax=1.0,vmin=-1.0)
-TT = ax.contour(zz_disk.reshape((nx,ny)),[0.1,0.5,1.0,3.0],linestyles='solid',colors='gray')
+#TT = ax.contour(zz_disk.reshape((nx,ny)),[0.1,0.5,1.0,3.0],linestyles='solid',colors='gray')
+TT = ax.contour(vmod,[-0.75,-0.5,-0.3,-0.1,0.0,0.1,0.3,0.5,0.75],linestyles='solid',colors='gray')
 plt.clabel(TT)
 ax.set_xlabel('RA',fontsize=15)
 ax.set_ylabel('Dec',fontsize=15)
-#ax.add_patch(disk)
-#ax.add_patch(ring)
+ax.add_patch(disk)
+ax.add_patch(ring)
 #ax.text(0.95, 0.95, freq[i], ha='right', va='top', transform=ax.transAxes, color="w",fontsize=15)
 ax.tick_params(axis='both',which='both',length=4,width=1,labelsize=12,direction='in',color='w')
 #ax.margins(x=-0.375,y=-0.375)
 cbar=plt.colorbar(im, shrink=0.9)
 cbar.set_label(r'$\mathrm{(km\ s^{-1})^{2}}$', size=10)
-plt.savefig('./teardrop/Flared_emitting_layer_vkep_vector.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
+#plt.savefig('./teardrop/Flared_emitting_layer_vkep_vector.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
+plt.savefig('./teardrop/'+mole+'_Flared_emitting_layer_{:4.2f}_{:4.2f}_vkep_vector.pdf'.format(z0,psi), bbox_inches='tight', pad_inches=0.1,dpi=100)
 #plt.show()
 plt.clf()
-'''
+#'''
 #'''
 # =======================================================================================
 # Making teardrop plot
@@ -285,6 +290,8 @@ plt.figure(figsize=(10,6))
 plt.pcolormesh(vcent,rc,aver_spec,norm=colors.LogNorm(vmin=1e-2*aver_spec.max(),vmax=aver_spec.max()),cmap='gist_heat',shading='gouraud',rasterized=True)
 plt.axvline(x=5.0,color='m',ls='--')
 plt.axvline(x=4.5,color='g',ls='--')
+plt.axhline(y=120./160.,color='r',ls='--')
+plt.axhline(y=260./160.,color='b',ls='--')
 plt.xlim(-2,10)
 #plt.ylim(0.0,2.5)
 plt.xlabel(r'V$_{radio}$ (km/s)', fontsize=15)
@@ -296,6 +303,54 @@ cbar.set_label(r'$Jy\ beam^{-1}$', size=10)
 plt.savefig('./teardrop/'+mole+'_teardrop_vector.pdf', bbox_inches='tight', pad_inches=0.1,dpi=100)
 plt.clf()
 #'''
+'''
+# =======================================================================================
+# Testing averaged spectra around the minor axis
+# =======================================================================================
+vref = (np.arange(nv+1)-0.5)*dv + v0
+vcent = np.average([vref[1:], vref[:-1]], axis=0)
+r_in = 0.05; r_out = 0.15
+# Spectra all =============================================================
+mask = get_mask(rr_disk.reshape((nx,ny)),ttheta.reshape((nx,ny)),r_in,r_out,-180.0,180.0)
+vlos, spectrum = get_vlos_spec(vmod, data, mask)
+vpnts = np.ravel(velax[None,:]-vlos[:,None]); spnts = np.ravel(spectrum)
+id = np.argsort(vpnts)
+vsort = vpnts[id]; ssort = spnts[id];
+y = binned_statistic(vsort, ssort, statistic='mean', bins=vref)[0]
+aver_spec_all = np.where(np.isfinite(y), y, 0.0)
+std_spec_all = binned_statistic(vsort, ssort, statistic='std', bins=vref)[0]
+# Spectra around -90 degree =============================================================
+PA_cen = -90.0; PA_width = 30.0
+PA_min = PA_cen - PA_width; PA_max = PA_cen + PA_width
+mask = get_mask(rr_disk.reshape((nx,ny)),ttheta.reshape((nx,ny)),r_in,r_out,PA_min,PA_max)
+vlos, spectrum = get_vlos_spec(vmod, data, mask)
+vpnts = np.ravel(velax[None,:]-vlos[:,None]); spnts = np.ravel(spectrum)
+id = np.argsort(vpnts)
+vsort = vpnts[id]; ssort = spnts[id];
+y = binned_statistic(vsort, ssort, statistic='mean', bins=vref)[0]
+aver_spec_m90 = np.where(np.isfinite(y), y, 0.0)
+std_spec_m90 = binned_statistic(vsort, ssort, statistic='std', bins=vref)[0]
+# Spectra around +90 degree ===============================================================
+PA_cen = 90.0; PA_width = 30.0
+PA_min = PA_cen - PA_width; PA_max = PA_cen + PA_width
+mask = get_mask(rr_disk.reshape((nx,ny)),ttheta.reshape((nx,ny)),r_in,r_out,PA_min,PA_max)
+vlos, spectrum = get_vlos_spec(vmod, data, mask)
+vpnts = np.ravel(velax[None,:]-vlos[:,None]); spnts = np.ravel(spectrum)
+id = np.argsort(vpnts)
+vsort = vpnts[id]; ssort = spnts[id];
+y = binned_statistic(vsort, ssort, statistic='mean', bins=vref)[0]
+aver_spec_p90 = np.where(np.isfinite(y), y, 0.0)
+std_spec_p90 = binned_statistic(vsort, ssort, statistic='std', bins=vref)[0]
+plt.plot(vcent,aver_spec_all,'k')
+plt.plot(vcent,aver_spec_m90,'r')
+plt.plot(vcent,aver_spec_p90,'b')
+plt.show()
+plt.plot(vcent,aver_spec_p90 - aver_spec_m90,'k--')
+plt.plot(vcent,aver_spec_m90 - aver_spec_all,'r--')
+plt.plot(vcent,aver_spec_p90 - aver_spec_all,'b--')
+plt.show()
+print((aver_spec_p90 - aver_spec_m90).max())
+'''
 '''
 # =======================================================================================
 # Testing GoFish teardrop plot
@@ -391,6 +446,7 @@ z0 = 0.45; psi = 1.25
 plt.figure(figsize=(10,6))
 plt.scatter(rr_disk, zz_disk,marker='.',color='blue')
 plt.plot(r, z0*np.power(r,psi),'r--',label='{:4.2f} r^{:4.2f}'.format(z0,psi))
+plt.plot(r, z0*(1+np.power(r/2.0,psi)),'b--',label='{:4.2f} r^{:4.2f}'.format(z0,psi))
 plt.xlim(0,2.0)
 #plt.ylim(0.0,0.5)
 plt.xlabel('R (arcsec)', fontsize=15)
