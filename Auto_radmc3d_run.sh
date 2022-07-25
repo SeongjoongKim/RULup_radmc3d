@@ -5,10 +5,15 @@
 # sigma2 = gas 75/ dust 7.5
 # sigma3 = gas 125/ dust 30
 name=fiducial_wind_sigma3_nowind_turb5
-
+OUTPUT_DIR="./"$name"/"
+if [ ! -d ${OUTPUT_DIR} ]
+then
+    mkdir -p ${OUTPUT_DIR}
+fi
 #--------------------------------------------------------------------------------------------
 # Setup the input files for temperature calculation
 python problem_setup.py -calmode "T" -wind "F"  # Set 2 grain model for calculating Tdust & Tgas
+python make_turb_file.py -file $name -Tw 0.5
 # Calculate the dust temperature
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
@@ -21,8 +26,8 @@ cp dust_temperature.dat "Tdust_"$name".dat"      # Copy T file
 #--------------------------------------------------------------------------------------------
 # Setup the input files for imaging
 python make_gas_temperature.py -file $name      # Separate Tdust & Tgas
-python make_turb_file.py -file $name -Tw 0.5
 python problem_setup.py -calmode "I" -wind "F"  # Set large grain only for imaging
+python make_turb_file.py -file $name -Tw 0.5
 #'''
 #--------------------------------------------------------------------------------------------
 # Continuum
@@ -76,7 +81,7 @@ radmc3d image imolspec 3 iline 3 incl 25.0 posang 239.0 setthreads 4 widthkms 6.
 mv image.out image_C18O_32.out
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
-
+'''
 #--------------------------------------------------------------------------------------------
 # Making tau = 1 surface cube
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
@@ -123,14 +128,14 @@ mv image.out image_C18O_32_tau1.out
 mv tausurface_3d.out image_C18O_21_tau1_3d.out
 TIMESTAMP=`date +%Y-%m-%d_%H-%M-%S`
 echo $TIMESTAMP
-
+'''
 #--------------------------------------------------------------------------------------------
 # converting ascii result file to fits
 python FITS_convert.py -file $name -dist 160.0 &
 python FITS_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
 
-python FITS_tau_convert.py -file $name -dist 160.0 &
-python FITS_tau_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
+#python FITS_tau_convert.py -file $name -dist 160.0 &
+#python FITS_tau_convert.py -file $name -dist 160.0 -bmaj 0.51 -bmin 0.44 -bpa 80.0
 #'''
 
 #'''
@@ -157,6 +162,8 @@ python azimuthal_average.py -file $name -bmaj "bmaj51"
 python plot_radial.py -file $name"_bmaj51"
 python plot_radial.py -file $name"_bmaj5"
 
+mv *$name*fits $OUTPUT_DIR
+rm *.out
 
 '''
 #--------------------------------------------------------------------------------------------

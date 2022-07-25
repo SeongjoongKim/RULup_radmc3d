@@ -148,7 +148,19 @@ class datacube(object):
 
         # Cube properties
         self.nx = self.header['NAXIS1']; self.ny = self.header['NAXIS2']; self.nv = self.header['NAXIS3']
-        self.bmaj = self.header['BMAJ']*3.6e3; self.bmin = self.header['BMIN']*3.6e3; self.bpa = self.header['BPA']
+        self.refx = self.header['CRPIX1']; self.refy = self.header['CRPIX2']; self.refv = self.header['CRPIX3']
+        if 'BMAJ' in self.header: 
+            self.bmaj = self.header['BMAJ']*3.6e3
+        else:
+            self.bmaj = 0.1
+        if 'BMIN' in self.header: 
+            self.bmin = self.header['BMIN']*3.6e3
+        else:
+            self.bmin = 0.1
+        if 'BPA' in self.header: 
+            self.bpa = self.header['BPA']
+        else:
+            self.bpa = 0.0
         self.pixsize_x = abs(self.header['CDELT1']*3.6e3); self.pixsize_y = abs(self.header['CDELT2']*3.6e3)
         try: 
             self.bunit = self.header['bunit']
@@ -161,11 +173,11 @@ class datacube(object):
             df=self.header['CDELT3']*1e-9
             restfreq=self.header['RESTFRQ']*1e-9
             c=2.99792458e5 # speed of light (km/s)
-            self.v0=-(f0-restfreq)*c/restfreq
+            self.v0=-((f0-(self.refv-1)*df)-restfreq)*c/restfreq
             self.dv=-df*c/restfreq
         if self.header['CTYPE3'] == 'VELO-LSR':
-            self.v0 = self.header['CRVAL3']
             self.dv = self.header['CDELT3']
+            self.v0 = self.header['CRVAL3'] - (self.refv-1)*self.dv
         # Set velocity axis of the data cube
         self.velax = np.arange(self.nv)*self.dv + self.v0
         
