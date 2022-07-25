@@ -163,6 +163,8 @@ python plot_radial.py -file $name"_bmaj51"
 python plot_radial.py -file $name"_bmaj5"
 
 mv *$name*fits $OUTPUT_DIR
+mv *$name*pdf $OUTPUT_DIR
+mv *$name*dat $OUTPUT_DIR
 rm *.out
 
 '''
